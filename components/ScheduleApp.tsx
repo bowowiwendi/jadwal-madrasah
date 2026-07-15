@@ -14,6 +14,7 @@ import SubjectLegend from "./SubjectLegend";
 import ScheduleGrid from "./ScheduleGrid";
 import ScheduleCards from "./ScheduleCards";
 import TeacherList from "./TeacherList";
+import PembiasaanPagi from "./PembiasaanPagi";
 
 export default function ScheduleApp() {
   const [view, setView] = useState<ViewKey>("schedule");
@@ -115,7 +116,7 @@ export default function ScheduleApp() {
                 </motion.div>
               </AnimatePresence>
             </motion.div>
-          ) : (
+          ) : view === "teachers" ? (
             <motion.div
               key="teachers"
               initial={{ opacity: 0, y: 10 }}
@@ -124,6 +125,16 @@ export default function ScheduleApp() {
               transition={{ duration: 0.28, ease: "easeOut" }}
             >
               <TeacherList />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="routine"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.28, ease: "easeOut" }}
+            >
+              <PembiasaanPagi />
             </motion.div>
           )}
         </AnimatePresence>

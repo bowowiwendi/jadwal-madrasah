@@ -1,9 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CalendarDays, Users } from "lucide-react";
+import { CalendarDays, Sun, Users } from "lucide-react";
 
-export type ViewKey = "schedule" | "teachers";
+export type ViewKey = "schedule" | "teachers" | "routine";
 
 interface MainTabsProps {
   view: ViewKey;
@@ -14,6 +14,7 @@ interface MainTabsProps {
 const TABS: { key: ViewKey; label: string; icon: typeof CalendarDays }[] = [
   { key: "schedule", label: "Jadwal Pelajaran", icon: CalendarDays },
   { key: "teachers", label: "Daftar Guru", icon: Users },
+  { key: "routine", label: "Pembiasaan Pagi", icon: Sun },
 ];
 
 export default function MainTabs({
