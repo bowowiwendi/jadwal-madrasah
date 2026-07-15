@@ -96,7 +96,7 @@ export const TEACHERS: Teacher[] = [
   },
   {
     id: 11,
-    name: "Bu Nulan",
+    name: "Bu Wulan",
     classes: ["4A", "4B"],
     subjectsAll: true,
     extra: ["B.ING"],
