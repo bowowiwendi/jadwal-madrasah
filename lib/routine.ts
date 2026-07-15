@@ -78,16 +78,20 @@ export const SHOLAT_DOA: Doa[] = [
   {
     name: "Doa I'tidal",
     arabic:
-      "سَمِعَ اللّهُ لِمَنْ حَمِدَهُ، رَبَّنَا وَلَكَ الْحَمْدُ",
-    latin: "Sami'allahu liman hamidah, Rabbana wa lakal hamd",
+      "سَمِعَ اللّهُ لِمَنْ حَمِدَهُ، اللّهُمَّ رَبَّنَا وَلَكَ الْحَمْدُ حَمْدًا كَثِيرًا طَيِّبًا مُبَارَكًا فِيهِ",
+    latin:
+      "Sami'allahu liman hamidah, Allahumma Rabbanaa wa lakal hamdu hamdan katsiran thayyiban mubaarakan fiih",
     arti:
-      "Allah mendengar orang yang memuji-Nya. Ya Tuhan kami, segala puji bagi-Mu.",
+      "Allah mendengar orang yang memuji-Nya. Ya Tuhan kami, segala puji bagi-Mu dengan pujian yang banyak, baik, dan penuh berkah.",
   },
   {
     name: "Doa Sujud",
-    arabic: "سُبْحَانَ رَبِّيَ الْأَعْلَى",
-    latin: "Subhana Rabbiyal A'la",
-    arti: "Maha Suci Tuhanku Yang Maha Tinggi.",
+    arabic:
+      "سُبْحَانَ رَبِّيَ الْأَعْلَى (٣×). اَللّهُمَّ اغْفِرْ لِيْ ذَنْبِيْ كُلَّهُ دِقَّهُ وَجِلَّهُ وَأَوَّلَهُ وَآخِرَهُ وَعَلَانِيَتَهُ وَسِرَّهُ",
+    latin:
+      "Subhana Rabbiyal A'la (3x). Allahummaghfirli dzambi kullahu diqqahu wa jillahu wa awwalahu wa aakhirahu wa 'alaaniyatahu wa sirrahu",
+    arti:
+      "Maha Suci Tuhanku Yang Maha Tinggi (3x). Ya Allah, ampunilah dosaku seluruhnya, yang kecil maupun besar, yang awal maupun akhir, yang terang-terangan maupun tersembunyi.",
   },
   {
     name: "Doa Duduk Antara Dua Sujud",
