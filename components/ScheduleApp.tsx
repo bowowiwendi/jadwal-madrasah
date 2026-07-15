@@ -6,13 +6,17 @@ import { BookOpen, GraduationCap, School, Sparkles } from "lucide-react";
 
 import { CLASS_ORDER, SCHEDULE } from "@/lib/data";
 import type { SubjectKey } from "@/lib/subjects";
+import { TEACHERS } from "@/lib/teachers";
 
+import MainTabs, { type ViewKey } from "./MainTabs";
 import ClassTabs from "./ClassTabs";
 import SubjectLegend from "./SubjectLegend";
 import ScheduleGrid from "./ScheduleGrid";
 import ScheduleCards from "./ScheduleCards";
+import TeacherList from "./TeacherList";
 
 export default function ScheduleApp() {
+  const [view, setView] = useState<ViewKey>("schedule");
   const [activeClass, setActiveClass] = useState<string>(CLASS_ORDER[0]);
   const [highlight, setHighlight] = useState<SubjectKey | null>(null);
 
@@ -34,7 +38,7 @@ export default function ScheduleApp() {
               <div>
                 <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-indigo-200">
                   <Sparkles className="h-3.5 w-3.5" />
-                  Jadwal Pelajaran
+                  Jadwal Pelajaran &amp; Daftar Guru
                 </p>
                 <h1 className="mt-1 text-xl font-extrabold leading-tight sm:text-2xl">
                   MI JAMIYATUL FALAH KEDUNGNENG
@@ -46,20 +50,21 @@ export default function ScheduleApp() {
                   </span>
                   <span className="inline-flex items-center gap-1.5 text-slate-300">
                     <BookOpen className="h-3.5 w-3.5" />
-                    {CLASS_ORDER.length} Kelas Tersedia
+                    {CLASS_ORDER.length} Kelas · {TEACHERS.length} Guru
                   </span>
                 </p>
               </div>
             </div>
           </div>
         </div>
-        {/* Tab bar */}
+
+        {/* Top-level view navigation */}
         <div className="border-t border-white/10 bg-slate-900/40 backdrop-blur">
           <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6">
-            <ClassTabs
-              classes={CLASS_ORDER}
-              active={activeClass}
-              onChange={setActiveClass}
+            <MainTabs
+              view={view}
+              onChange={setView}
+              teacherCount={TEACHERS.length}
             />
           </div>
         </div>
@@ -67,31 +72,60 @@ export default function ScheduleApp() {
 
       {/* Content */}
       <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
-        <div className="mb-6">
-          <SubjectLegend
-            highlight={highlight}
-            onToggle={toggleHighlight}
-            onClear={() => setHighlight(null)}
-          />
-        </div>
-
         <AnimatePresence mode="wait">
-          <motion.div
-            key={activeClass}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.28, ease: "easeOut" }}
-          >
-            {/* Desktop / tablet table */}
-            <div className="hidden md:block">
-              <ScheduleGrid slots={slots} highlight={highlight} />
-            </div>
-            {/* Mobile card layout */}
-            <div className="md:hidden">
-              <ScheduleCards slots={slots} highlight={highlight} />
-            </div>
-          </motion.div>
+          {view === "schedule" ? (
+            <motion.div
+              key="schedule"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.28, ease: "easeOut" }}
+            >
+              <div className="mb-5">
+                <ClassTabs
+                  classes={CLASS_ORDER}
+                  active={activeClass}
+                  onChange={setActiveClass}
+                />
+              </div>
+              <div className="mb-6">
+                <SubjectLegend
+                  highlight={highlight}
+                  onToggle={toggleHighlight}
+                  onClear={() => setHighlight(null)}
+                />
+              </div>
+
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeClass}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.28, ease: "easeOut" }}
+                >
+                  {/* Desktop / tablet table */}
+                  <div className="hidden md:block">
+                    <ScheduleGrid slots={slots} highlight={highlight} />
+                  </div>
+                  {/* Mobile card layout */}
+                  <div className="md:hidden">
+                    <ScheduleCards slots={slots} highlight={highlight} />
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="teachers"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.28, ease: "easeOut" }}
+            >
+              <TeacherList />
+            </motion.div>
+          )}
         </AnimatePresence>
       </section>
 
