@@ -211,16 +211,29 @@ export default function PembiasaanPagi() {
         </div>
         <ol className="divide-y divide-slate-100">
           {SHOLAT_DOA.map((doa, i) => (
-            <li
-              key={doa}
-              className="flex items-center gap-3 px-5 py-3"
-            >
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-teal-500 text-xs font-bold text-white">
-                {i + 1}
-              </span>
-              <span className="text-sm font-semibold text-slate-700">
-                {doa}
-              </span>
+            <li key={doa.name} className="px-5 py-4">
+              <div className="flex items-start gap-3">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-teal-500 text-xs font-bold text-white">
+                  {i + 1}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-slate-800">
+                    {doa.name}
+                  </p>
+                  <p
+                    dir="rtl"
+                    className="mt-2 text-right text-lg leading-loose text-slate-900"
+                  >
+                    {doa.arabic}
+                  </p>
+                  <p className="mt-1 text-xs italic text-slate-500">
+                    {doa.latin}
+                  </p>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-600">
+                    {doa.arti}
+                  </p>
+                </div>
+              </div>
             </li>
           ))}
         </ol>

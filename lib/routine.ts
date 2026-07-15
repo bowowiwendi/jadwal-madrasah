@@ -51,16 +51,71 @@ export const PRE_READING = [
   "Doa-doa dalam Sholat",
 ] as const;
 
+export interface Doa {
+  name: string;
+  arabic: string;
+  latin: string;
+  arti: string;
+}
+
 /** Urutan doa dalam sholat, dari Takbiratul Ikhram hingga Tasyahud Akhir. */
-export const SHOLAT_DOA: string[] = [
-  "Doa Takbiratul Ikhram",
-  "Doa Iftitah",
-  "Doa Ruku'",
-  "Doa I'tidal",
-  "Doa Sujud",
-  "Doa Duduk Antara Dua Sujud",
-  "Doa Tasyahud Awal",
-  "Doa Tasyahud Akhir",
+export const SHOLAT_DOA: Doa[] = [
+  {
+    name: "Doa Takbiratul Ikhram (Iftitah)",
+    arabic:
+      "سُبْحَانَكَ اللّهُمَّ وَبِحَمْدِكَ وَتَبَارَكَ اسْمُكَ وَتَعَالَى جَدُّكَ وَلاَ إِلَهَ غَيْرُكَ",
+    latin:
+      "Subhanaka Allahumma wa bihamdika wa tabarakasmuka wa ta'ala jadduka wa laa ilaha ghairuk",
+    arti:
+      "Maha Suci Engkau ya Allah, segala puji bagi-Mu, Maha Berkah nama-Mu, Maha Tinggi keagungan-Mu, dan tiada ilah (sembahan) yang berhak disembah selain Engkau.",
+  },
+  {
+    name: "Doa Ruku'",
+    arabic: "سُبْحَانَ رَبِّيَ الْعَظِيْمِ",
+    latin: "Subhana Rabbiyal 'Adzim",
+    arti: "Maha Suci Tuhanku Yang Maha Agung.",
+  },
+  {
+    name: "Doa I'tidal",
+    arabic:
+      "سَمِعَ اللّهُ لِمَنْ حَمِدَهُ، رَبَّنَا وَلَكَ الْحَمْدُ",
+    latin: "Sami'allahu liman hamidah, Rabbana wa lakal hamd",
+    arti:
+      "Allah mendengar orang yang memuji-Nya. Ya Tuhan kami, segala puji bagi-Mu.",
+  },
+  {
+    name: "Doa Sujud",
+    arabic: "سُبْحَانَ رَبِّيَ الْأَعْلَى",
+    latin: "Subhana Rabbiyal A'la",
+    arti: "Maha Suci Tuhanku Yang Maha Tinggi.",
+  },
+  {
+    name: "Doa Duduk Antara Dua Sujud",
+    arabic:
+      "اَللّهُمَّ اغْفِرْ لِيْ وَارْحَمْنِيْ وَاجْبُرْنِيْ وَارْفَعْنِيْ وَارْزُقْنِيْ وَاهْدِنِيْ وَعَافِنِيْ وَاعْفُ عَنِّيْ",
+    latin:
+      "Allahummaghfir li, warhamni, wajburni, warfa'ni, warzuqni, wahdini, wa 'afini, wa'fu 'anni",
+    arti:
+      "Ya Allah, ampunilah aku, kasihanilah aku, perbaikilah urusanku, angkatlah derajatku, berilah rezeki kepadaku, berilah petunjuk kepadaku, sehatkanlah aku, dan maafkanlah aku.",
+  },
+  {
+    name: "Doa Tasyahud Awal",
+    arabic:
+      "اَلتَّحِيَّاتُ لِلّهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ، السَّلاَمُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللّهِ وَبَرَكَاتُهُ، السَّلاَمُ عَلَيْنَا وَعَلَى عِبَادِ اللّهِ الصَّالِحِيْنَ، أَشْهَدُ أَنْ لاَ إِلَهَ إِلاَّ اللّهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا رَسُوْلُ اللّهِ",
+    latin:
+      "Attahiyyatu lillahi wasshalawatu wattayyibatu, assalamu 'alaika ayyuhan nabiyyu wa rahmatullahi wa barakatuh, assalamu 'alaina wa 'ala 'ibadillahis shalihin, asyhadu an laa ilaha illallah wa asyhadu anna Muhammadar rasulullah",
+    arti:
+      "Segala penghormatan, shalat, dan kebaikan adalah milik Allah. Semoga keselamatan, rahmat, dan keberkahan tercurah kepadamu wahai Nabi. Semoga keselamatan tercurah kepada kami dan kepada hamba-hamba Allah yang shalih. Aku bersaksi bahwa tiada Tuhan selain Allah, dan aku bersaksi bahwa Muhammad adalah utusan Allah.",
+  },
+  {
+    name: "Doa Tasyahud Akhir & Sholawat",
+    arabic:
+      "اَلتَّحِيَّاتُ لِلّهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ، السَّلاَمُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللّهِ وَبَرَكَاتُهُ، السَّلاَمُ عَلَيْنَا وَعَلَى عِبَادِ اللّهِ الصَّالِحِيْنَ، أَشْهَدُ أَنْ لاَ إِلَهَ إِلاَّ اللّهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا رَسُوْلُ اللّهِ. اَللّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيْمَ وَعَلَى آلِ إِبْرَاهِيْمَ، إِنَّكَ حَمِيْدٌ مَجِيْدٌ، اَللّهُمَّ بَارِكْ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا بَارَكْتَ عَلَى إِبْرَاهِيْمَ وَعَلَى آلِ إِبْرَاهِيْمَ، إِنَّكَ حَمِيْدٌ مَجِيْدٌ",
+    latin:
+      "Attahiyyatu lillahi wasshalawatu wattayyibatu, assalamu 'alaika ayyuhan nabiyyu wa rahmatullahi wa barakatuh, assalamu 'alaina wa 'ala 'ibadillahis shalihin, asyhadu an laa ilaha illallah wa asyhadu anna Muhammadar rasulullah. Allahumma salli 'ala Muhammad wa 'ala ali Muhammad kama sallaita 'ala Ibrahim wa 'ala ali Ibrahim, innaka hamidun majid. Allahumma barik 'ala Muhammad wa 'ala ali Muhammad kama barakta 'ala Ibrahim wa 'ala ali Ibrahim, innaka hamidun majid",
+    arti:
+      "Segala penghormatan, shalat, dan kebaikan adalah milik Allah. Semoga keselamatan, rahmat, dan keberkahan tercurah kepadamu wahai Nabi, dan kepada kami serta hamba-hamba Allah yang shalih. Aku bersaksi tiada Tuhan selain Allah dan Muhammad adalah utusan-Nya. Ya Allah, limpahkanlah shalawat kepada Muhammad dan keluarganya sebagaimana Engkau melimpahkan shalawat kepada Ibrahim dan keluarganya. Sesungguhnya Engkau Maha Terpuji lagi Maha Mulia. Ya Allah, berkahilah Muhammad dan keluarganya sebagaimana Engkau memberkahi Ibrahim dan keluarganya. Sesungguhnya Engkau Maha Terpuji lagi Maha Mulia.",
+  },
 ];
 
 export interface DayPlan {
