@@ -51,6 +51,18 @@ export const PRE_READING = [
   "Doa-doa dalam Sholat",
 ] as const;
 
+/** Urutan doa dalam sholat, dari Takbiratul Ikhram hingga Tasyahud Akhir. */
+export const SHOLAT_DOA: string[] = [
+  "Doa Takbiratul Ikhram",
+  "Doa Iftitah",
+  "Doa Ruku'",
+  "Doa I'tidal",
+  "Doa Sujud",
+  "Doa Duduk Antara Dua Sujud",
+  "Doa Tasyahud Awal",
+  "Doa Tasyahud Akhir",
+];
+
 export interface DayPlan {
   surahs: Surah[];
 }

@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   ChevronRight,
   Circle,
+  Heart,
   RotateCcw,
   Sparkles,
   Sun,
@@ -16,25 +17,35 @@ import {
   buildDays,
   JUZ_AMMA,
   PRE_READING,
+  SHOLAT_DOA,
 } from "@/lib/routine";
 
 export default function PembiasaanPagi() {
-  const days = useMemo(() => buildDays(JUZ_AMMA), []);
-  const total = days.length;
+  // Surah dibaca mundur: An-Nas -> ... -> An-Naba' (lalu Al-Fatihah).
+  const surahDays = useMemo(
+    () => buildDays([...JUZ_AMMA].reverse()),
+    []
+  );
+  const surahTotal = surahDays.length;
 
   const [current, setCurrent] = useState(0);
   const [completed, setCompleted] = useState<number[]>([]);
 
-  const isDone = (i: number) => completed.includes(i);
-  const activePre = PRE_READING[current % PRE_READING.length];
-  const progress = Math.round((completed.length / total) * 100);
-  const currentSurahs = days[current]?.surahs ?? [];
-  const allComplete = completed.length >= total;
+  const [doaCurrent, setDoaCurrent] = useState(0);
+  const [doaCompleted, setDoaCompleted] = useState<number[]>([]);
+  const doaTotal = SHOLAT_DOA.length;
 
-  const markDone = () => {
-    const isLast = current >= total - 1;
+  const isDone = (i: number) => completed.includes(i);
+  const doaIsDone = (i: number) => doaCompleted.includes(i);
+  const activePre = PRE_READING[current % PRE_READING.length];
+  const surahProgress = Math.round((completed.length / surahTotal) * 100);
+  const doaProgress = Math.round((doaCompleted.length / doaTotal) * 100);
+  const currentSurahs = surahDays[current]?.surahs ?? [];
+  const surahAllComplete = completed.length >= surahTotal;
+
+  const markSurahDone = () => {
+    const isLast = current >= surahTotal - 1;
     if (isLast) {
-      // Whole Juz 'Amma finished → loop back to Al-Fatihah.
       setCompleted([]);
       setCurrent(0);
     } else {
@@ -43,12 +54,27 @@ export default function PembiasaanPagi() {
     }
   };
 
-  const reset = () => {
+  const markDoaDone = () => {
+    const isLast = doaCurrent >= doaTotal - 1;
+    if (isLast) {
+      setDoaCompleted([]);
+      setDoaCurrent(0);
+    } else {
+      setDoaCompleted((c) =>
+        c.includes(doaCurrent) ? c : [...c, doaCurrent]
+      );
+      setDoaCurrent((c) => c + 1);
+    }
+  };
+
+  const resetSurah = () => {
     setCompleted([]);
     setCurrent(0);
   };
-
-  const jumpTo = (i: number) => setCurrent(i);
+  const resetDoa = () => {
+    setDoaCompleted([]);
+    setDoaCurrent(0);
+  };
 
   return (
     <div className="space-y-5">
@@ -63,14 +89,14 @@ export default function PembiasaanPagi() {
               Pembiasaan Pagi
             </h2>
             <p className="text-sm text-slate-500">
-              Pembacaan Juz 'Amma selang-seling &amp; doa pembuka
-              harian.
+              Pembacaan Juz 'Amma mundur &amp; doa pembuka harian.
             </p>
           </div>
         </div>
         <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-emerald-700 shadow-sm ring-1 ring-emerald-200">
           <Sparkles className="h-3.5 w-3.5" />
-          {completed.length}/{total} hari selesai
+          {completed.length + doaCompleted.length}/
+          {surahTotal + doaTotal} selesai
         </span>
       </div>
 
@@ -110,14 +136,15 @@ export default function PembiasaanPagi() {
         </div>
       </div>
 
-      {/* Current day tracker */}
+      {/* Surah tracker (reverse order) */}
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-5 py-3">
-          <p className="text-sm font-semibold text-slate-600">
-            Hari ke-{current + 1} dari {total}
+          <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-600">
+            <BookOpen className="h-4 w-4 text-emerald-600" />
+            Bacaab Al-Qur'an (Juz 'Amma)
           </p>
           <span className="text-xs text-slate-400">
-            {allComplete ? "Siklus selesai 🎉" : "Giliran baca hari ini"}
+            {surahAllComplete ? "Siklus selesai 🎉" : "Mundur: An-Nas → An-Naba'"}
           </span>
         </div>
 
@@ -158,28 +185,26 @@ export default function PembiasaanPagi() {
             </motion.div>
           </AnimatePresence>
 
-          {/* Progress */}
           <div className="mt-5">
             <div className="mb-1.5 flex items-center justify-between text-xs font-medium text-slate-500">
               <span>Progres Juz 'Amma</span>
-              <span>{progress}%</span>
+              <span>{surahProgress}%</span>
             </div>
             <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
               <motion.div
                 className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500"
                 initial={false}
-                animate={{ width: `${progress}%` }}
+                animate={{ width: `${surahProgress}%` }}
                 transition={{ type: "spring", stiffness: 120, damping: 20 }}
               />
             </div>
           </div>
 
-          {/* Actions */}
           <div className="mt-5 flex flex-wrap gap-2">
             <button
               type="button"
-              onClick={markDone}
-              disabled={allComplete}
+              onClick={markSurahDone}
+              disabled={surahAllComplete}
               className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <CheckCircle2 className="h-4 w-4" />
@@ -187,7 +212,7 @@ export default function PembiasaanPagi() {
             </button>
             <button
               type="button"
-              onClick={reset}
+              onClick={resetSurah}
               className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
             >
               <RotateCcw className="h-4 w-4" />
@@ -197,51 +222,162 @@ export default function PembiasaanPagi() {
         </div>
       </div>
 
-      {/* Full plan — clickable override */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div className="mb-3 flex items-center gap-2">
-          <BookOpen className="h-4 w-4 text-emerald-600" />
-          <h3 className="text-sm font-bold text-slate-700">
-            Rencana Bacaan Lengkap
-          </h3>
+      {/* Doa-doa dalam Sholat tracker */}
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-5 py-3">
+          <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-600">
+            <Heart className="h-4 w-4 text-teal-600" />
+            Doa-doa dalam Sholat
+          </p>
           <span className="text-xs text-slate-400">
-            (klik untuk pindah hari)
+            Takbiratul Ikhram → Tasyahud Akhir
           </span>
         </div>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-          {days.map((day, i) => {
-            const done = isDone(i);
-            const active = i === current;
-            return (
-              <button
-                key={i}
-                type="button"
-                onClick={() => jumpTo(i)}
-                className={[
-                  "flex items-start gap-2 rounded-xl border p-2.5 text-left transition-all",
-                  active
-                    ? "border-emerald-400 bg-emerald-50 ring-1 ring-emerald-300"
-                    : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50",
-                ].join(" ")}
-              >
-                {done ? (
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
-                ) : active ? (
-                  <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-                ) : (
-                  <Circle className="mt-0.5 h-4 w-4 shrink-0 text-slate-300" />
-                )}
-                <div className="min-w-0">
-                  <p className="text-[11px] font-semibold text-slate-400">
-                    Hari {i + 1}
-                  </p>
-                  <p className="line-clamp-2 text-xs font-semibold text-slate-700">
-                    {day.surahs.map((s) => s.name).join(", ")}
-                  </p>
-                </div>
-              </button>
-            );
-          })}
+
+        <div className="p-5">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={doaCurrent}
+              initial={{ opacity: 0, x: 12 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -12 }}
+              transition={{ duration: 0.25 }}
+              className="flex items-center gap-3 rounded-xl border border-teal-200 bg-teal-50 px-4 py-3"
+            >
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-teal-500 text-xs font-bold text-white">
+                {doaCurrent + 1}
+              </span>
+              <span className="text-sm font-bold text-teal-800">
+                {SHOLAT_DOA[doaCurrent]}
+              </span>
+            </motion.div>
+          </AnimatePresence>
+
+          <div className="mt-5">
+            <div className="mb-1.5 flex items-center justify-between text-xs font-medium text-slate-500">
+              <span>Progres Doa Sholat</span>
+              <span>{doaProgress}%</span>
+            </div>
+            <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
+              <motion.div
+                className="h-full rounded-full bg-gradient-to-r from-teal-500 to-cyan-500"
+                initial={false}
+                animate={{ width: `${doaProgress}%` }}
+                transition={{ type: "spring", stiffness: 120, damping: 20 }}
+              />
+            </div>
+          </div>
+
+          <div className="mt-5 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={markDoaDone}
+              disabled={doaCompleted.length >= doaTotal}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-teal-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <CheckCircle2 className="h-4 w-4" />
+              Tandai Selesai
+            </button>
+            <button
+              type="button"
+              onClick={resetDoa}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+            >
+              <RotateCcw className="h-4 w-4" />
+              Reset / Ulangi
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Full plans — clickable override */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="mb-3 flex items-center gap-2">
+            <BookOpen className="h-4 w-4 text-emerald-600" />
+            <h3 className="text-sm font-bold text-slate-700">
+              Rencana Bacaan Lengkap
+            </h3>
+            <span className="text-xs text-slate-400">(klik untuk pindah)</span>
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {surahDays.map((day, i) => {
+              const done = isDone(i);
+              const active = i === current;
+              return (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setCurrent(i)}
+                  className={[
+                    "flex items-start gap-2 rounded-xl border p-2.5 text-left transition-all",
+                    active
+                      ? "border-emerald-400 bg-emerald-50 ring-1 ring-emerald-300"
+                      : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50",
+                  ].join(" ")}
+                >
+                  {done ? (
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+                  ) : active ? (
+                    <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                  ) : (
+                    <Circle className="mt-0.5 h-4 w-4 shrink-0 text-slate-300" />
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-semibold text-slate-400">
+                      Hari {i + 1}
+                    </p>
+                    <p className="line-clamp-2 text-xs font-semibold text-slate-700">
+                      {day.surahs.map((s) => s.name).join(", ")}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="mb-3 flex items-center gap-2">
+            <Heart className="h-4 w-4 text-teal-600" />
+            <h3 className="text-sm font-bold text-slate-700">
+              Urutan Doa Sholat
+            </h3>
+            <span className="text-xs text-slate-400">(klik untuk pindah)</span>
+          </div>
+          <div className="flex flex-col gap-2">
+            {SHOLAT_DOA.map((doa, i) => {
+              const done = doaIsDone(i);
+              const active = i === doaCurrent;
+              return (
+                <button
+                  key={doa}
+                  type="button"
+                  onClick={() => setDoaCurrent(i)}
+                  className={[
+                    "flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left transition-all",
+                    active
+                      ? "border-teal-400 bg-teal-50 ring-1 ring-teal-300"
+                      : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50",
+                  ].join(" ")}
+                >
+                  {done ? (
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-teal-500" />
+                  ) : active ? (
+                    <ChevronRight className="h-4 w-4 shrink-0 text-teal-600" />
+                  ) : (
+                    <Circle className="h-4 w-4 shrink-0 text-slate-300" />
+                  )}
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[11px] font-bold text-slate-500">
+                    {i + 1}
+                  </span>
+                  <span className="text-sm font-semibold text-slate-700">
+                    {doa}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
