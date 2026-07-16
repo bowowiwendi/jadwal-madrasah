@@ -1,11 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { BookOpen, CalendarOff, LayoutDashboard, Sparkles } from "lucide-react";
+import { BookOpen, CalendarOff, LayoutDashboard, Sparkles, Sun } from "lucide-react";
 
 import { CLASS_ORDER, SCHEDULE } from "@/lib/data";
 import { DAYS, SUBJECTS, type SubjectKey } from "@/lib/subjects";
 import { getIndonesianWeekday, getPasaran } from "@/lib/calendar";
+import { getTodayRoutine, SHOLAT_DOA } from "@/lib/routine";
 import SubjectCell from "./SubjectCell";
 
 const YASIN = {
@@ -23,6 +24,8 @@ export default function DashboardHariIni() {
   const dayKey = (DAYS as readonly string[]).includes(weekday)
     ? (weekday as (typeof DAYS)[number])
     : null;
+
+  const routine = getTodayRoutine(today);
 
   const dateLabel = today.toLocaleDateString("id-ID", {
     weekday: "long",
@@ -89,6 +92,79 @@ export default function DashboardHariIni() {
           </motion.div>
         )}
       </div>
+
+      {!isLibur && dayKey && (
+        <div className="mb-6 overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 shadow-sm">
+          <div className="flex items-center gap-3 border-b border-emerald-100 bg-white/60 px-5 py-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500 text-white">
+              <Sun className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-emerald-900">
+                Pembiasaan Pagi Hari Ini
+              </h3>
+              <p className="text-xs text-emerald-700">
+                Kegiatan sebelum pelajaran dimulai.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-3">
+            {/* Bacaan pembuka */}
+            <div className="rounded-xl border border-emerald-200 bg-white p-4">
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-emerald-500">
+                Bacaan Pembuka
+              </p>
+              <p className="flex items-center gap-2 text-sm font-bold text-emerald-800">
+                {routine.preReading}
+                <span className="rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                  HARI INI
+                </span>
+              </p>
+              <p className="mt-1 text-xs text-slate-500">
+                Selang-seling dengan Doa-doa dalam Sholat.
+              </p>
+            </div>
+
+            {/* Baca Al-Qur'an */}
+            <div className="rounded-xl border border-emerald-200 bg-white p-4">
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-emerald-500">
+                Baca Al-Qur'an (Juz 'Amma)
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {routine.surahs.map((s) => (
+                  <span
+                    key={s.no}
+                    className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-200"
+                  >
+                    <span className="flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[9px] font-bold text-white">
+                      {s.no}
+                    </span>
+                    {s.name}
+                  </span>
+                ))}
+              </div>
+              <p className="mt-2 text-xs text-slate-500">
+                Hari ke-{routine.index + 1} dari {routine.total} (mundur: An-Nas →
+                An-Naba').
+              </p>
+            </div>
+
+            {/* Doa-doa dalam Sholat */}
+            <div className="rounded-xl border border-emerald-200 bg-white p-4">
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-emerald-500">
+                Doa-doa dalam Sholat
+              </p>
+              <p className="text-sm font-bold text-emerald-800">
+                {SHOLAT_DOA.length} Doa
+              </p>
+              <p className="mt-1 text-xs text-slate-500">
+                Dibaca berurutan dari Takbiratul Ikhram hingga Tasyahud Akhir.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {!isLibur && dayKey && (
         <>

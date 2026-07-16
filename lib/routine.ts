@@ -1,3 +1,5 @@
+import { gregorianToJDN } from "./calendar";
+
 export interface Surah {
   no: number;
   name: string;
@@ -83,6 +85,34 @@ export const PRE_READING = [
   "Asmaul Husna",
   "Doa-doa dalam Sholat",
 ] as const;
+
+export interface TodayRoutine {
+  /** Hari ke-berapa dalam siklus Juz 'Amma (mundur). */
+  index: number;
+  total: number;
+  /** Bacaan pembuka selang-seling untuk hari ini. */
+  preReading: string;
+  /** Surah Juz 'Amma yang dibaca hari ini. */
+  surahs: Surah[];
+}
+
+/** Menentukan pembiasaan pagi yang jatuh pada hari ini (deterministik per tanggal). */
+export function getTodayRoutine(date: Date = new Date()): TodayRoutine {
+  const days = buildDays([...JUZ_AMMA].reverse());
+  const total = days.length;
+  const j = gregorianToJDN(
+    date.getFullYear(),
+    date.getMonth() + 1,
+    date.getDate()
+  );
+  const index = ((j % total) + total) % total;
+  return {
+    index,
+    total,
+    preReading: PRE_READING[index % PRE_READING.length],
+    surahs: days[index].surahs,
+  };
+}
 
 export interface Doa {
   name: string;
