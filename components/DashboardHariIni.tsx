@@ -1,0 +1,160 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { BookOpen, CalendarOff, LayoutDashboard, Sparkles } from "lucide-react";
+
+import { CLASS_ORDER, SCHEDULE } from "@/lib/data";
+import { DAYS, SUBJECTS, type SubjectKey } from "@/lib/subjects";
+import { getIndonesianWeekday, getPasaran } from "@/lib/calendar";
+import SubjectCell from "./SubjectCell";
+
+const YASIN = {
+  arab: "بسمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ ۞ يٰسٓ ۞",
+  latin: "Bismillāhir-raḥmānir-raḥīm. Yā Sīn.",
+  arti: "Surat Yasin (36) — disunahkan membaca Surat Yasin pada hari Jum'at, lebih-lebih lagi pada Jum'at Kliwon.",
+};
+
+export default function DashboardHariIni() {
+  const today = new Date();
+  const weekday = getIndonesianWeekday(today);
+  const pasaran = getPasaran(today);
+  const isLibur = weekday === "Minggu";
+  const isJumatKliwon = weekday === "Jumat" && pasaran === "Kliwon";
+  const dayKey = (DAYS as readonly string[]).includes(weekday)
+    ? (weekday as (typeof DAYS)[number])
+    : null;
+
+  const dateLabel = today.toLocaleDateString("id-ID", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  return (
+    <div>
+      {/* Header info */}
+      <div className="mb-5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-gradient-to-br from-slate-800 to-indigo-900 px-5 py-4 text-white">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/20">
+              <LayoutDashboard className="h-5 w-5" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold">Dashboard Hari Ini</h2>
+              <p className="text-sm capitalize text-slate-200">{dateLabel}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-sm font-semibold ring-1 ring-white/20">
+              Hari: {weekday}
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-sm font-semibold ring-1 ring-white/20">
+              Pasaran: {pasaran}
+            </span>
+          </div>
+        </div>
+
+        {isLibur && (
+          <div className="flex items-center gap-3 px-5 py-4 text-slate-600">
+            <CalendarOff className="h-5 w-5 text-slate-400" />
+            <p className="text-sm font-medium">
+              Hari ini Minggu — sekolah libur, tidak ada jadwal pelajaran.
+            </p>
+          </div>
+        )}
+
+        {isJumatKliwon && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="border-t border-amber-200 bg-amber-50 px-5 py-4"
+          >
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-white">
+                <BookOpen className="h-5 w-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="flex items-center gap-1.5 text-sm font-bold text-amber-900">
+                  <Sparkles className="h-4 w-4" />
+                  Jum&apos;at Kliwon — Bacaan Tambahan: Surat Yasin
+                </p>
+                <p dir="rtl" className="mt-1 text-lg leading-relaxed text-amber-900">
+                  {YASIN.arab}
+                </p>
+                <p className="text-sm font-medium text-amber-800">{YASIN.latin}</p>
+                <p className="mt-1 text-xs text-amber-700">{YASIN.arti}</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </div>
+
+      {!isLibur && dayKey && (
+        <>
+          <p className="mb-4 text-sm font-medium text-slate-500">
+            Berikut jadwal pelajaran untuk seluruh kelas pada hari{" "}
+            <span className="font-semibold text-slate-700">{weekday}</span>.
+          </p>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {CLASS_ORDER.map((kelas, idx) => {
+              const slots = SCHEDULE[kelas];
+              return (
+                <motion.div
+                  key={kelas}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.04, duration: 0.25 }}
+                  className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+                >
+                  <div className="border-b border-slate-100 bg-slate-50 px-4 py-2.5">
+                    <h3 className="text-sm font-bold text-slate-800">{kelas}</h3>
+                  </div>
+                  <ul className="divide-y divide-slate-100">
+                    {slots.map((slot, i) => {
+                      if (slot.isBreak) {
+                        return (
+                          <li
+                            key={i}
+                            className="flex items-center justify-between px-4 py-2"
+                          >
+                            <span className="text-xs font-medium tabular-nums text-slate-400">
+                              {slot.time}
+                            </span>
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold italic text-slate-500">
+                              Istirahat
+                            </span>
+                          </li>
+                        );
+                      }
+                      const subject = slot.cells[dayKey];
+                      return (
+                        <li
+                          key={i}
+                          className="flex items-center justify-between gap-3 px-4 py-2"
+                        >
+                          <span className="text-xs font-medium tabular-nums text-slate-400">
+                            {slot.time}
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            {subject ? (
+                              <SubjectCell subject={subject as SubjectKey} highlight={null} />
+                            ) : (
+                              <div className="flex h-[40px] items-center justify-center rounded-lg border border-dashed border-slate-200 text-xs text-slate-300">
+                                —
+                              </div>
+                            )}
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </motion.div>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}

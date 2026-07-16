@@ -15,9 +15,10 @@ import ScheduleGrid from "./ScheduleGrid";
 import ScheduleCards from "./ScheduleCards";
 import TeacherList from "./TeacherList";
 import PembiasaanPagi from "./PembiasaanPagi";
+import DashboardHariIni from "./DashboardHariIni";
 
 export default function ScheduleApp() {
-  const [view, setView] = useState<ViewKey>("schedule");
+  const [view, setView] = useState<ViewKey>("dashboard");
   const [activeClass, setActiveClass] = useState<string>(CLASS_ORDER[0]);
   const [highlight, setHighlight] = useState<SubjectKey | null>(null);
 
@@ -74,7 +75,17 @@ export default function ScheduleApp() {
       {/* Content */}
       <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
         <AnimatePresence mode="wait">
-          {view === "schedule" ? (
+          {view === "dashboard" ? (
+            <motion.div
+              key="dashboard"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.28, ease: "easeOut" }}
+            >
+              <DashboardHariIni />
+            </motion.div>
+          ) : view === "schedule" ? (
             <motion.div
               key="schedule"
               initial={{ opacity: 0, y: 10 }}
