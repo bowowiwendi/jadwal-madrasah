@@ -1,12 +1,25 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { BookOpen, CalendarOff, LayoutDashboard, Sparkles, Sun } from "lucide-react";
+import {
+  BookOpen,
+  CalendarClock,
+  CalendarOff,
+  LayoutDashboard,
+  Sparkles,
+  Sun,
+} from "lucide-react";
 
 import { CLASS_ORDER, SCHEDULE } from "@/lib/data";
 import { DAYS, SUBJECTS, type SubjectKey } from "@/lib/subjects";
 import { getIndonesianWeekday, getPasaran } from "@/lib/calendar";
 import { getTodayRoutine, SHOLAT_DOA } from "@/lib/routine";
+import {
+  getTodayPiket,
+  getTodayUniform,
+  getTodayUpacara,
+  getTodayKegiatanJumat,
+} from "@/lib/school";
 import SubjectCell from "./SubjectCell";
 
 const YASIN = {
@@ -26,6 +39,10 @@ export default function DashboardHariIni() {
     : null;
 
   const routine = getTodayRoutine(today);
+  const piket = getTodayPiket(today);
+  const uniform = getTodayUniform(today);
+  const upacara = getTodayUpacara(today);
+  const kegiatanJumat = getTodayKegiatanJumat(today);
 
   const dateLabel = today.toLocaleDateString("id-ID", {
     weekday: "long",
@@ -162,6 +179,69 @@ export default function DashboardHariIni() {
                 Dibaca berurutan dari Takbiratul Ikhram hingga Tasyahud Akhir.
               </p>
             </div>
+          </div>
+        </div>
+      )}
+
+      {!isLibur && dayKey && (
+        <div className="mb-6 overflow-hidden rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-50 to-slate-50 shadow-sm">
+          <div className="flex items-center gap-3 border-b border-indigo-100 bg-white/60 px-5 py-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white">
+              <CalendarClock className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-indigo-900">Info Hari Ini</h3>
+              <p className="text-xs text-indigo-700">
+                Seragam, piket &amp; kegiatan hari ini.
+              </p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2">
+            <div className="rounded-xl border border-indigo-200 bg-white p-4">
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-indigo-500">
+                Seragam Hari Ini
+              </p>
+              <p className="text-sm font-bold text-indigo-800">{uniform}</p>
+            </div>
+
+            {piket && (
+              <div className="rounded-xl border border-indigo-200 bg-white p-4">
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-indigo-500">
+                  Piket ({piket.Kelas})
+                </p>
+                <p className="text-xs text-slate-500">Sholat Duha &amp; Duhur</p>
+                <p className="text-sm font-semibold text-indigo-800">
+                  {piket["Sholat Duha dan Duhur"]}
+                </p>
+                <p className="mt-1.5 text-xs text-slate-500">Salam Sapa</p>
+                <p className="text-sm font-semibold text-indigo-800">
+                  {piket["Salam Sapa"]}
+                </p>
+              </div>
+            )}
+
+            {upacara && (
+              <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 sm:col-span-2">
+                <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-amber-600">
+                  Upacara Bendera Hari Ini
+                </p>
+                <p className="text-sm font-bold text-amber-900">
+                  {upacara["Hari, Tanggal"]}
+                </p>
+                <p className="text-xs text-amber-800">
+                  Petugas: {upacara.Petugas} · Pembina: {upacara.Pembina}
+                </p>
+              </div>
+            )}
+
+            {kegiatanJumat && (
+              <div className="rounded-xl border border-teal-200 bg-teal-50 p-4 sm:col-span-2">
+                <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-teal-600">
+                  Kegiatan Jum&apos;at
+                </p>
+                <p className="text-sm font-bold text-teal-800">{kegiatanJumat}</p>
+              </div>
+            )}
           </div>
         </div>
       )}

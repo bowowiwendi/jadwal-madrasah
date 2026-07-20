@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   BookOpen,
@@ -30,6 +30,36 @@ export default function PembiasaanPagi() {
 
   const [current, setCurrent] = useState(0);
   const [completed, setCompleted] = useState<number[]>([]);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("mijafa_pembiasaan_v1");
+      if (raw) {
+        const data = JSON.parse(raw) as {
+          current?: number;
+          completed?: number[];
+        };
+        if (typeof data.current === "number") setCurrent(data.current);
+        if (Array.isArray(data.completed)) setCompleted(data.completed);
+      }
+    } catch {
+      /* abaikan jika gagal membaca penyimpanan */
+    }
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      localStorage.setItem(
+        "mijafa_pembiasaan_v1",
+        JSON.stringify({ current, completed })
+      );
+    } catch {
+      /* abaikan jika gagal menyimpan */
+    }
+  }, [current, completed, hydrated]);
 
   const isDone = (i: number) => completed.includes(i);
   const activePre = PRE_READING[current % PRE_READING.length];

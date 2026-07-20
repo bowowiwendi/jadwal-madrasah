@@ -1,9 +1,20 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CalendarDays, LayoutDashboard, Sun, Users } from "lucide-react";
+import {
+  CalendarDays,
+  CalendarRange,
+  LayoutDashboard,
+  Sun,
+  Users,
+} from "lucide-react";
 
-export type ViewKey = "dashboard" | "schedule" | "teachers" | "routine";
+export type ViewKey =
+  | "dashboard"
+  | "schedule"
+  | "teachers"
+  | "routine"
+  | "info";
 
 interface MainTabsProps {
   view: ViewKey;
@@ -16,6 +27,7 @@ const TABS: { key: ViewKey; label: string; icon: typeof CalendarDays }[] = [
   { key: "schedule", label: "Jadwal Pelajaran", icon: CalendarDays },
   { key: "teachers", label: "Daftar Guru", icon: Users },
   { key: "routine", label: "Pembiasaan Pagi", icon: Sun },
+  { key: "info", label: "Info Sekolah", icon: CalendarRange },
 ];
 
 export default function MainTabs({
@@ -24,17 +36,18 @@ export default function MainTabs({
   teacherCount,
 }: MainTabsProps) {
   return (
-    <div className="inline-flex w-full gap-1 rounded-xl bg-slate-100 p-1 sm:w-auto">
-      {TABS.map((tab) => {
-        const Icon = tab.icon;
-        const isActive = view === tab.key;
-        return (
-          <button
-            key={tab.key}
-            type="button"
-            onClick={() => onChange(tab.key)}
-            className="relative flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors sm:flex-none"
-          >
+    <div className="w-full overflow-x-auto rounded-xl bg-slate-100 p-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex w-max min-w-full gap-1">
+        {TABS.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = view === tab.key;
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => onChange(tab.key)}
+              className="relative flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors"
+            >
             {isActive && (
               <motion.span
                 layoutId="active-view-tab"
@@ -58,6 +71,7 @@ export default function MainTabs({
           </button>
         );
       })}
+      </div>
     </div>
   );
 }

@@ -16,6 +16,7 @@ import ScheduleCards from "./ScheduleCards";
 import TeacherList from "./TeacherList";
 import PembiasaanPagi from "./PembiasaanPagi";
 import DashboardHariIni from "./DashboardHariIni";
+import InfoSekolah from "./InfoSekolah";
 
 export default function ScheduleApp() {
   const [view, setView] = useState<ViewKey>("dashboard");
@@ -137,7 +138,7 @@ export default function ScheduleApp() {
             >
               <TeacherList />
             </motion.div>
-          ) : (
+          ) : view === "routine" ? (
             <motion.div
               key="routine"
               initial={{ opacity: 0, y: 10 }}
@@ -146,6 +147,16 @@ export default function ScheduleApp() {
               transition={{ duration: 0.28, ease: "easeOut" }}
             >
               <PembiasaanPagi />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="info"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.28, ease: "easeOut" }}
+            >
+              <InfoSekolah />
             </motion.div>
           )}
         </AnimatePresence>
