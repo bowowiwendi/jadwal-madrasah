@@ -8,45 +8,23 @@ import {
   ChevronRight,
   Circle,
   Heart,
-  RotateCcw,
   Sparkles,
   Sun,
 } from "lucide-react";
 
-import {
-  buildDays,
-  JUZ_AMMA,
-  SHOLAT_DOA,
-} from "@/lib/routine";
+import { buildDays, JUZ_AMMA, SHOLAT_DOA } from "@/lib/routine";
 import { useSettings } from "./SettingsContext";
 
 export default function PembiasaanPagi() {
-  const { settings, update, resetSurah } = useSettings();
-  const current = settings.surahCurrent;
-  const completed = settings.surahCompleted;
+  const { settings, update, surahCurrent, surahTotal } = useSettings();
   const preReading = settings.preReading;
 
-  // Surah dibaca mundur: An-Nas -> ... -> An-Naba' (lalu Al-Fatihah).
   const surahDays = useMemo(() => buildDays([...JUZ_AMMA].reverse()), []);
-  const surahTotal = surahDays.length;
+  const completedCount = surahCurrent;
 
-  const isDone = (i: number) => completed.includes(i);
-  const activePre = preReading[current % preReading.length];
-  const surahProgress = Math.round((completed.length / surahTotal) * 100);
-  const currentSurahs = surahDays[current]?.surahs ?? [];
-  const surahAllComplete = completed.length >= surahTotal;
-
-  const markSurahDone = () => {
-    const isLast = current >= surahTotal - 1;
-    if (isLast) {
-      resetSurah();
-    } else {
-      const nextCompleted = completed.includes(current)
-        ? completed
-        : [...completed, current];
-      update({ surahCompleted: nextCompleted, surahCurrent: current + 1 });
-    }
-  };
+  const activePre = preReading[surahCurrent % preReading.length];
+  const surahProgress = Math.round((completedCount / surahTotal) * 100);
+  const currentSurahs = surahDays[surahCurrent]?.surahs ?? [];
 
   return (
     <div className="space-y-5">
@@ -61,13 +39,14 @@ export default function PembiasaanPagi() {
               Pembiasaan Pagi
             </h2>
             <p className="text-sm text-slate-500">
-              Pembacaan Juz 'Amma mundur &amp; doa pembuka harian.
+              Bacaan maju otomatis per hari. Klik rencana di bawah untuk
+              mengatur ulang.
             </p>
           </div>
         </div>
         <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-emerald-700 shadow-sm ring-1 ring-emerald-200">
           <Sparkles className="h-3.5 w-3.5" />
-          {completed.length}/{surahTotal} selesai
+          Hari ke-{surahCurrent + 1} / {surahTotal}
         </span>
       </div>
 
@@ -107,22 +86,22 @@ export default function PembiasaanPagi() {
         </div>
       </div>
 
-      {/* Surah tracker (reverse order) */}
+      {/* Surah tracker (auto-advance) */}
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-5 py-3">
           <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-600">
             <BookOpen className="h-4 w-4 text-emerald-600" />
-            Bacaab Al-Qur'an (Juz 'Amma)
+            Bacaab Al-Qur'an (Juz &apos;Amma)
           </p>
           <span className="text-xs text-slate-400">
-            {surahAllComplete ? "Siklus selesai 🎉" : "Mundur: An-Nas → An-Naba'"}
+            Otomatis: {surahCurrent + 1} / {surahTotal}
           </span>
         </div>
 
         <div className="p-5">
           <AnimatePresence mode="wait">
             <motion.div
-              key={current}
+              key={surahCurrent}
               initial={{ opacity: 0, x: 12 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -12 }}
@@ -158,7 +137,7 @@ export default function PembiasaanPagi() {
 
           <div className="mt-5">
             <div className="mb-1.5 flex items-center justify-between text-xs font-medium text-slate-500">
-              <span>Progres Juz 'Amma</span>
+              <span>Progres Juz &apos;Amma</span>
               <span>{surahProgress}%</span>
             </div>
             <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
@@ -170,30 +149,10 @@ export default function PembiasaanPagi() {
               />
             </div>
           </div>
-
-          <div className="mt-5 flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={markSurahDone}
-              disabled={surahAllComplete}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <CheckCircle2 className="h-4 w-4" />
-              Tandai Selesai
-            </button>
-            <button
-              type="button"
-              onClick={resetSurah}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
-            >
-              <RotateCcw className="h-4 w-4" />
-              Reset / Ulangi
-            </button>
-          </div>
         </div>
       </div>
 
-      {/* Doa-doa dalam Sholat — semua doa untuk dibaca */}
+      {/* Doa-doa dalam Sholat */}
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-5 py-3">
           <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-600">
@@ -212,9 +171,7 @@ export default function PembiasaanPagi() {
                   {i + 1}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold text-slate-800">
-                    {doa.name}
-                  </p>
+                  <p className="text-sm font-bold text-slate-800">{doa.name}</p>
                   <p
                     dir="rtl"
                     className="mt-2 text-right text-lg leading-loose text-slate-900"
@@ -234,24 +191,29 @@ export default function PembiasaanPagi() {
         </ol>
       </div>
 
-      {/* Full plan — clickable override for surah */}
+      {/* Full plan — clickable for admin */}
       <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="mb-3 flex items-center gap-2">
           <BookOpen className="h-4 w-4 text-emerald-600" />
           <h3 className="text-sm font-bold text-slate-700">
             Rencana Bacaan Lengkap
           </h3>
-          <span className="text-xs text-slate-400">(klik untuk pindah)</span>
+          <span className="text-xs text-slate-400">(klik untuk atur ulang dari sini)</span>
         </div>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {surahDays.map((day, i) => {
-            const done = isDone(i);
-            const active = i === current;
+            const done = i < surahCurrent;
+            const active = i === surahCurrent;
             return (
               <button
                 key={i}
                 type="button"
-                onClick={() => update({ surahCurrent: i })}
+                onClick={() =>
+                  update({
+                    surahOffset: i,
+                    surahStartDate: new Date().toISOString().slice(0, 10),
+                  })
+                }
                 className={[
                   "flex items-start gap-2 rounded-xl border p-2.5 text-left transition-all",
                   active

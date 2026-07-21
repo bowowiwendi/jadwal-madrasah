@@ -40,13 +40,11 @@ export default function DashboardHariIni() {
     ? (weekday as (typeof DAYS)[number])
     : null;
 
-  const { settings } = useSettings();
+  const { settings, surahCurrent: surahCurrentCtx, surahTotal: surahTotalCtx } = useSettings();
 
   const surahDays = useMemo(() => buildDays([...JUZ_AMMA].reverse()), []);
-  const surahTotal = surahDays.length;
-  const curIdx = Math.min(settings.surahCurrent, surahTotal - 1);
-  const currentSurahs = surahDays[curIdx]?.surahs ?? [];
-  const activePre = settings.preReading[curIdx % settings.preReading.length];
+  const currentSurahs = surahDays[surahCurrentCtx]?.surahs ?? [];
+  const activePre = settings.preReading[surahCurrentCtx % settings.preReading.length];
 
   const piket = getTodayPiket(today);
   const uniform = getTodayUniform(today);
@@ -171,7 +169,7 @@ export default function DashboardHariIni() {
                 ))}
               </div>
               <p className="mt-2 text-xs text-slate-500">
-                Hari ke-{curIdx + 1} dari {surahTotal} (mundur: An-Nas →
+                Hari ke-{surahCurrentCtx + 1} dari {surahTotalCtx} (mundur: An-Nas →
                 An-Naba').
               </p>
             </div>
