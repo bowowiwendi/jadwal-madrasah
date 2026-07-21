@@ -47,12 +47,39 @@ function daysSince(dateStr: string, today: Date): number {
   );
 }
 
+function normalize(data: Partial<AppSettings> & { surahCurrent?: number }): AppSettings {
+  const today = new Date().toISOString().slice(0, 10);
+  const hasOld = typeof (data as any).surahCurrent === "number";
+  const hasNew = typeof data.surahOffset === "number";
+
+  let surahOffset = DEFAULT_SETTINGS.surahOffset;
+  let surahStartDate = DEFAULT_SETTINGS.surahStartDate;
+
+  if (hasNew) {
+    surahOffset = data.surahOffset!;
+    surahStartDate = data.surahStartDate ?? today;
+  } else if (hasOld) {
+    // Migrasi dari format lama (surahCurrent) ke baru (surahOffset)
+    surahOffset = (data as any).surahCurrent as number;
+    surahStartDate = today;
+  }
+
+  return {
+    preReading:
+      Array.isArray(data.preReading) && data.preReading.length > 0
+        ? data.preReading
+        : DEFAULT_SETTINGS.preReading,
+    surahOffset,
+    surahStartDate,
+  };
+}
+
 async function fetchSettings(): Promise<AppSettings | null> {
   try {
     const res = await fetch("/api/admin-settings");
     if (!res.ok) return null;
     const data = await res.json();
-    if (data && typeof data === "object") return data as AppSettings;
+    if (data && typeof data === "object") return normalize(data);
     return null;
   } catch {
     return null;
@@ -76,21 +103,8 @@ function loadLocal(): AppSettings {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
-      const data = JSON.parse(raw) as Partial<AppSettings>;
-      return {
-        preReading:
-          Array.isArray(data.preReading) && data.preReading.length > 0
-            ? data.preReading
-            : DEFAULT_SETTINGS.preReading,
-        surahOffset:
-          typeof data.surahOffset === "number"
-            ? data.surahOffset
-            : DEFAULT_SETTINGS.surahOffset,
-        surahStartDate:
-          typeof data.surahStartDate === "string" && data.surahStartDate
-            ? data.surahStartDate
-            : DEFAULT_SETTINGS.surahStartDate,
-      };
+      const data = JSON.parse(raw);
+      if (data && typeof data === "object") return normalize(data);
     }
   } catch {
     /* abaikan */
@@ -116,9 +130,10 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
   );
 
   const surahCurrent = useMemo(() => {
+    if (!surahTotal) return 0;
     const today = new Date();
     const diff = daysSince(settings.surahStartDate, today);
-    return (settings.surahOffset + diff) % surahTotal;
+    return ((settings.surahOffset + diff) % surahTotal + surahTotal) % surahTotal;
   }, [settings.surahOffset, settings.surahStartDate, surahTotal]);
 
   const load = async () => {
