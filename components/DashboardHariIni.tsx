@@ -21,6 +21,7 @@ import {
   getTodayUniform,
   getTodayUpacara,
   getTodayKegiatanJumat,
+  getNextUpacara,
 } from "@/lib/school";
 import SubjectCell from "./SubjectCell";
 
@@ -72,6 +73,8 @@ export default function DashboardHariIni() {
   const surahCurrentBesok = (surahCurrentCtx + 1) % surahTotalCtx;
   const currentSurahsBesok = surahDays[surahCurrentBesok]?.surahs ?? [];
   const activePreBesok = settings.preReading[surahCurrentBesok % settings.preReading.length];
+
+  const nextUpacara = getNextUpacara(today);
 
   const dateLabel = today.toLocaleDateString("id-ID", {
     weekday: "long",
@@ -334,6 +337,29 @@ export default function DashboardHariIni() {
                   {currentSurahsBesok.map((s) => s.name).join(", ")}
                 </span>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {nextUpacara && upacara !== nextUpacara && (
+        <div className="mb-6 overflow-hidden rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 shadow-sm">
+          <div className="flex items-center gap-3 border-b border-amber-100 bg-white/60 px-5 py-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-600 text-white">
+              <Sparkles className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-amber-900">Upacara Selanjutnya</h3>
+              <p className="text-xs text-amber-700">Jadwal petugas &amp; pembina terdekat.</p>
+            </div>
+          </div>
+          <div className="p-5">
+            <div className="rounded-xl border border-amber-200 bg-white p-4">
+              <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-amber-600">Upacara Bendera</p>
+              <p className="text-sm font-bold text-amber-900">{nextUpacara["Hari, Tanggal"]}</p>
+              <p className="mt-1 text-xs text-amber-800">
+                Petugas: {nextUpacara.Petugas} · Pembina: {nextUpacara.Pembina}
+              </p>
             </div>
           </div>
         </div>

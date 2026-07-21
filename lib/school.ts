@@ -149,6 +149,24 @@ export function getTodayUpacara(date: Date = new Date()): Upacara | null {
   );
 }
 
+export function getNextUpacara(date: Date = new Date()): Upacara | null {
+  const now = new Date(date);
+  now.setHours(0, 0, 0, 0);
+  let next: Upacara | null = null;
+  let nextDate: Date | null = null;
+  for (const u of JADWAL_UPACARA.tabel_petugas) {
+    const m = u["Hari, Tanggal"].match(/(\d{1,2})\s+(\d{2})\s+(\d{4})/);
+    if (!m) continue;
+    const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+    d.setHours(0, 0, 0, 0);
+    if (d > now && (!nextDate || d < nextDate)) {
+      next = u;
+      nextDate = d;
+    }
+  }
+  return next;
+}
+
 export function getTodayKegiatanJumat(date: Date = new Date()): string | null {
   const wd = getIndonesianWeekday(date);
   if (wd !== "Jumat") return null;
