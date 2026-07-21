@@ -51,6 +51,25 @@ export default function DashboardHariIni() {
   const upacara = getTodayUpacara(today);
   const kegiatanJumat = getTodayKegiatanJumat(today);
 
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  const weekdayBesok = getIndonesianWeekday(tomorrow);
+  const pasaranBesok = getPasaran(tomorrow);
+  const isLiburBesok = weekdayBesok === "Minggu";
+  const dayKeyBesok = (DAYS as readonly string[]).includes(weekdayBesok)
+    ? (weekdayBesok as (typeof DAYS)[number])
+    : null;
+  const piketBesok = getTodayPiket(tomorrow);
+  const uniformBesok = getTodayUniform(tomorrow);
+  const upacaraBesok = getTodayUpacara(tomorrow);
+  const kegiatanJumatBesok = getTodayKegiatanJumat(tomorrow);
+  const dateLabelBesok = tomorrow.toLocaleDateString("id-ID", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
   const dateLabel = today.toLocaleDateString("id-ID", {
     weekday: "long",
     day: "numeric",
@@ -291,6 +310,88 @@ export default function DashboardHariIni() {
                         );
                       }
                       const subject = slot.cells[dayKey];
+                      return (
+                        <li
+                          key={i}
+                          className="flex items-center justify-between gap-3 px-4 py-2"
+                        >
+                          <span className="text-xs font-medium tabular-nums text-slate-400">
+                            {slot.time}
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            {subject ? (
+                              <SubjectCell subject={subject as SubjectKey} highlight={null} />
+                            ) : (
+                              <div className="flex h-[40px] items-center justify-center rounded-lg border border-dashed border-slate-200 text-xs text-slate-300">
+                                —
+                              </div>
+                            )}
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </motion.div>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {!isLiburBesok && dayKeyBesok && (
+        <>
+          <div className="mb-4 mt-8 flex items-center gap-3 rounded-2xl border border-sky-200 bg-gradient-to-br from-sky-50 to-blue-50 p-4">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-500 text-white shadow-sm">
+              <CalendarClock className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-sky-900">
+                Jadwal Besok — {dateLabelBesok}
+              </h3>
+              <p className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-sky-700">
+                <span>Hari: {weekdayBesok}</span>
+                <span>Pasaran: {pasaranBesok}</span>
+                <span>Seragam: {uniformBesok}</span>
+                {piketBesok && <span>Piket: {piketBesok.Kelas}</span>}
+                {kegiatanJumatBesok && (
+                  <span>{kegiatanJumatBesok}</span>
+                )}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {CLASS_ORDER.map((kelas, idx) => {
+              const slots = SCHEDULE[kelas];
+              return (
+                <motion.div
+                  key={kelas}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.04, duration: 0.25 }}
+                  className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+                >
+                  <div className="border-b border-slate-100 bg-slate-50 px-4 py-2.5">
+                    <h3 className="text-sm font-bold text-slate-800">{kelas}</h3>
+                  </div>
+                  <ul className="divide-y divide-slate-100">
+                    {slots.map((slot, i) => {
+                      if (slot.isBreak) {
+                        return (
+                          <li
+                            key={i}
+                            className="flex items-center justify-between px-4 py-2"
+                          >
+                            <span className="text-xs font-medium tabular-nums text-slate-400">
+                              {slot.time}
+                            </span>
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold italic text-slate-500">
+                              Istirahat
+                            </span>
+                          </li>
+                        );
+                      }
+                      const subject = slot.cells[dayKeyBesok];
                       return (
                         <li
                           key={i}
