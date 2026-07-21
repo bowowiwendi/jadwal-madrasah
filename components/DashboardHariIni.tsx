@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   BookOpen,
@@ -13,7 +14,7 @@ import {
 import { CLASS_ORDER, SCHEDULE } from "@/lib/data";
 import { DAYS, SUBJECTS, type SubjectKey } from "@/lib/subjects";
 import { getIndonesianWeekday, getPasaran } from "@/lib/calendar";
-import { getTodayRoutine, SHOLAT_DOA } from "@/lib/routine";
+import { buildDays, JUZ_AMMA, SHOLAT_DOA } from "@/lib/routine";
 import { useSettings } from "./SettingsContext";
 import {
   getTodayPiket,
@@ -40,7 +41,13 @@ export default function DashboardHariIni() {
     : null;
 
   const { settings } = useSettings();
-  const routine = getTodayRoutine(settings.preReading, today);
+
+  const surahDays = useMemo(() => buildDays([...JUZ_AMMA].reverse()), []);
+  const surahTotal = surahDays.length;
+  const curIdx = Math.min(settings.surahCurrent, surahTotal - 1);
+  const currentSurahs = surahDays[curIdx]?.surahs ?? [];
+  const activePre = settings.preReading[curIdx % settings.preReading.length];
+
   const piket = getTodayPiket(today);
   const uniform = getTodayUniform(today);
   const upacara = getTodayUpacara(today);
@@ -135,7 +142,7 @@ export default function DashboardHariIni() {
                 Bacaan Pembuka
               </p>
               <p className="flex items-center gap-2 text-sm font-bold text-emerald-800">
-                {routine.preReading}
+                {activePre}
                 <span className="rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-bold text-white">
                   HARI INI
                 </span>
@@ -151,7 +158,7 @@ export default function DashboardHariIni() {
                 Baca Al-Qur'an (Juz 'Amma)
               </p>
               <div className="flex flex-wrap gap-1.5">
-                {routine.surahs.map((s) => (
+                {currentSurahs.map((s) => (
                   <span
                     key={s.no}
                     className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-200"
@@ -164,7 +171,7 @@ export default function DashboardHariIni() {
                 ))}
               </div>
               <p className="mt-2 text-xs text-slate-500">
-                Hari ke-{routine.index + 1} dari {routine.total} (mundur: An-Nas →
+                Hari ke-{curIdx + 1} dari {surahTotal} (mundur: An-Nas →
                 An-Naba').
               </p>
             </div>
