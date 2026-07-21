@@ -97,7 +97,10 @@ export interface TodayRoutine {
 }
 
 /** Menentukan pembiasaan pagi yang jatuh pada hari ini (deterministik per tanggal). */
-export function getTodayRoutine(date: Date = new Date()): TodayRoutine {
+export function getTodayRoutine(
+  preReading: readonly string[] = PRE_READING,
+  date: Date = new Date()
+): TodayRoutine {
   const days = buildDays([...JUZ_AMMA].reverse());
   const total = days.length;
   const j = gregorianToJDN(
@@ -106,10 +109,11 @@ export function getTodayRoutine(date: Date = new Date()): TodayRoutine {
     date.getDate()
   );
   const index = ((j % total) + total) % total;
+  const list = preReading.length ? preReading : PRE_READING;
   return {
     index,
     total,
-    preReading: PRE_READING[index % PRE_READING.length],
+    preReading: list[index % list.length],
     surahs: days[index].surahs,
   };
 }

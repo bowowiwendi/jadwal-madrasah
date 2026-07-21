@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BookOpen, GraduationCap, School, Sparkles } from "lucide-react";
+import { BookOpen, GraduationCap, School, Settings2, Sparkles } from "lucide-react";
 
 import { CLASS_ORDER, SCHEDULE } from "@/lib/data";
 import type { SubjectKey } from "@/lib/subjects";
@@ -17,11 +17,14 @@ import TeacherList from "./TeacherList";
 import PembiasaanPagi from "./PembiasaanPagi";
 import DashboardHariIni from "./DashboardHariIni";
 import InfoSekolah from "./InfoSekolah";
+import AdminPanel from "./AdminPanel";
+import { AppSettingsProvider } from "./SettingsContext";
 
 export default function ScheduleApp() {
   const [view, setView] = useState<ViewKey>("dashboard");
   const [activeClass, setActiveClass] = useState<string>(CLASS_ORDER[0]);
   const [highlight, setHighlight] = useState<SubjectKey | null>(null);
+  const [adminOpen, setAdminOpen] = useState(false);
 
   const slots = useMemo(() => SCHEDULE[activeClass], [activeClass]);
 
@@ -29,12 +32,13 @@ export default function ScheduleApp() {
     setHighlight((prev) => (prev === subject ? null : subject));
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <header className="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 text-white">
-        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
-          <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-4">
+    <AppSettingsProvider>
+      <main className="min-h-screen bg-slate-50">
+        {/* Header */}
+        <header className="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 text-white">
+          <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
+            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-4">
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/20 backdrop-blur">
                 <School className="h-7 w-7 text-white" />
               </div>
@@ -57,6 +61,15 @@ export default function ScheduleApp() {
                   </span>
                 </p>
               </div>
+              <button
+                type="button"
+                onClick={() => setAdminOpen(true)}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-white/10 px-3 py-2 text-sm font-semibold text-white ring-1 ring-white/20 backdrop-blur transition hover:bg-white/20"
+                aria-label="Pengaturan Admin"
+              >
+                <Settings2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Admin</span>
+              </button>
             </div>
           </div>
         </div>
@@ -166,6 +179,9 @@ export default function ScheduleApp() {
         MI JAMIYATUL FALAH KEDUNGNENG · Tahun Ajaran 2026/2027 · Dibuat dengan
         Next.js &amp; Tailwind CSS
       </footer>
+
+      <AdminPanel open={adminOpen} onClose={() => setAdminOpen(false)} />
     </main>
+    </AppSettingsProvider>
   );
 }

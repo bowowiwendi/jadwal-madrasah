@@ -2,9 +2,17 @@
 
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, GraduationCap, Search, Users } from "lucide-react";
+import {
+  BookOpen,
+  GraduationCap,
+  Search,
+  Users,
+  ArrowLeft,
+  CalendarDays,
+} from "lucide-react";
 
-import { SUBJECTS, type SubjectKey } from "@/lib/subjects";
+import { SUBJECTS, DAYS, type SubjectKey } from "@/lib/subjects";
+import { CLASS_ORDER, SCHEDULE } from "@/lib/data";
 import {
   resolveSubjects,
   TEACHERS,
@@ -23,24 +31,30 @@ const GRADIENTS = [
   "from-teal-500 to-green-500",
 ];
 
+const shortClass = (cls: string) => cls.replace("KELAS ", "");
+
 function TeacherCard({
   teacher,
   index,
+  onClick,
 }: {
   teacher: Teacher;
   index: number;
+  onClick: () => void;
 }) {
   const subjects = resolveSubjects(teacher);
   const gradient = GRADIENTS[index % GRADIENTS.length];
 
   return (
-    <motion.div
+    <motion.button
+      type="button"
       layout
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.97 }}
       transition={{ delay: index * 0.03, duration: 0.3 }}
-      className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
+      onClick={onClick}
+      className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-sm transition-shadow hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-300"
     >
       <div className="flex items-center gap-3">
         <div
@@ -95,13 +109,97 @@ function TeacherCard({
             </span>
           ))}
         </div>
+        <p className="mt-3 inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-500">
+          <CalendarDays className="h-3.5 w-3.5" />
+          Klik untuk lihat jadwal mengajar
+        </p>
       </div>
-    </motion.div>
+    </motion.button>
+  );
+}
+
+function TeacherSchedule({ teacher }: { teacher: Teacher }) {
+  const subs = new Set(resolveSubjects(teacher));
+  const times = SCHEDULE["KELAS 3"]
+    .filter((s) => !s.isBreak)
+    .map((s) => s.time);
+
+  const rows = times.map((time) => ({
+    time,
+    days: DAYS.map((day) => {
+      const found: { cls: string; subj: SubjectKey }[] = [];
+      for (const cls of CLASS_ORDER) {
+        const slot = SCHEDULE[cls].find((s) => s.time === time);
+        if (!slot || slot.isBreak) continue;
+        const subj = slot.cells[day];
+        if (subj && subs.has(subj)) found.push({ cls, subj });
+      }
+      return found;
+    }),
+  }));
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[680px] border-collapse text-sm">
+          <thead>
+            <tr className="text-left text-xs uppercase tracking-wide text-slate-400">
+              <th className="border-b border-slate-200 px-4 py-3 font-semibold">
+                Waktu
+              </th>
+              {DAYS.map((d) => (
+                <th
+                  key={d}
+                  className="border-b border-slate-200 px-3 py-3 font-semibold"
+                >
+                  {d}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {rows.map((r) => (
+              <tr key={r.time} className="align-top">
+                <td className="whitespace-nowrap px-4 py-2.5 text-xs font-semibold tabular-nums text-slate-500">
+                  {r.time}
+                </td>
+                {r.days.map((cells, di) => (
+                  <td key={di} className="px-3 py-2.5">
+                    {cells.length === 0 ? (
+                      <span className="text-slate-300">—</span>
+                    ) : (
+                      <div className="space-y-1">
+                        {cells.map((c, ci) => (
+                          <div
+                            key={ci}
+                            className="flex items-center gap-1.5 rounded-md bg-slate-50 px-1.5 py-1"
+                          >
+                            <span className="text-[10px] font-bold text-slate-400">
+                              {shortClass(c.cls)}
+                            </span>
+                            <span
+                              className={`inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-bold ${SUBJECTS[c.subj].badge}`}
+                            >
+                              {c.subj}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
 
 export default function TeacherList() {
   const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState<Teacher | null>(null);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -140,7 +238,33 @@ export default function TeacherList() {
         </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {selected ? (
+        <div>
+          <button
+            type="button"
+            onClick={() => setSelected(null)}
+            className="mb-4 inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 shadow-sm transition hover:bg-slate-50"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Kembali ke daftar
+          </button>
+          <div className="mb-4 flex items-center gap-3 rounded-2xl border border-indigo-200 bg-indigo-50 p-4">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-indigo-600 text-base font-bold text-white">
+              {teacherInitials(selected.name)}
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-indigo-900">
+                Jadwal Mengajar — {selected.name}
+              </h3>
+              <p className="text-xs text-indigo-700">
+                Senin s.d. Sabtu · klik kelas untuk melihat di tab Jadwal
+                Pelajaran
+              </p>
+            </div>
+          </div>
+          <TeacherSchedule teacher={selected} />
+        </div>
+      ) : filtered.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-slate-300 bg-white py-12 text-center text-sm text-slate-400">
           Tidak ada guru yang cocok dengan pencarian “{query}”.
         </div>
@@ -150,7 +274,12 @@ export default function TeacherList() {
           className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
         >
           {filtered.map((t, i) => (
-            <TeacherCard key={t.id} teacher={t} index={i} />
+            <TeacherCard
+              key={t.id}
+              teacher={t}
+              index={i}
+              onClick={() => setSelected(t)}
+            />
           ))}
         </motion.div>
       )}

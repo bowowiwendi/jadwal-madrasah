@@ -14,6 +14,7 @@ import { CLASS_ORDER, SCHEDULE } from "@/lib/data";
 import { DAYS, SUBJECTS, type SubjectKey } from "@/lib/subjects";
 import { getIndonesianWeekday, getPasaran } from "@/lib/calendar";
 import { getTodayRoutine, SHOLAT_DOA } from "@/lib/routine";
+import { useSettings } from "./SettingsContext";
 import {
   getTodayPiket,
   getTodayUniform,
@@ -38,7 +39,8 @@ export default function DashboardHariIni() {
     ? (weekday as (typeof DAYS)[number])
     : null;
 
-  const routine = getTodayRoutine(today);
+  const { settings } = useSettings();
+  const routine = getTodayRoutine(settings.preReading, today);
   const piket = getTodayPiket(today);
   const uniform = getTodayUniform(today);
   const upacara = getTodayUpacara(today);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   BookOpen,
@@ -16,53 +16,22 @@ import {
 import {
   buildDays,
   JUZ_AMMA,
-  PRE_READING,
   SHOLAT_DOA,
 } from "@/lib/routine";
+import { useSettings } from "./SettingsContext";
 
 export default function PembiasaanPagi() {
+  const { settings, update, resetSurah } = useSettings();
+  const current = settings.surahCurrent;
+  const completed = settings.surahCompleted;
+  const preReading = settings.preReading;
+
   // Surah dibaca mundur: An-Nas -> ... -> An-Naba' (lalu Al-Fatihah).
-  const surahDays = useMemo(
-    () => buildDays([...JUZ_AMMA].reverse()),
-    []
-  );
+  const surahDays = useMemo(() => buildDays([...JUZ_AMMA].reverse()), []);
   const surahTotal = surahDays.length;
 
-  const [current, setCurrent] = useState(0);
-  const [completed, setCompleted] = useState<number[]>([]);
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem("mijafa_pembiasaan_v1");
-      if (raw) {
-        const data = JSON.parse(raw) as {
-          current?: number;
-          completed?: number[];
-        };
-        if (typeof data.current === "number") setCurrent(data.current);
-        if (Array.isArray(data.completed)) setCompleted(data.completed);
-      }
-    } catch {
-      /* abaikan jika gagal membaca penyimpanan */
-    }
-    setHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (!hydrated) return;
-    try {
-      localStorage.setItem(
-        "mijafa_pembiasaan_v1",
-        JSON.stringify({ current, completed })
-      );
-    } catch {
-      /* abaikan jika gagal menyimpan */
-    }
-  }, [current, completed, hydrated]);
-
   const isDone = (i: number) => completed.includes(i);
-  const activePre = PRE_READING[current % PRE_READING.length];
+  const activePre = preReading[current % preReading.length];
   const surahProgress = Math.round((completed.length / surahTotal) * 100);
   const currentSurahs = surahDays[current]?.surahs ?? [];
   const surahAllComplete = completed.length >= surahTotal;
@@ -70,17 +39,13 @@ export default function PembiasaanPagi() {
   const markSurahDone = () => {
     const isLast = current >= surahTotal - 1;
     if (isLast) {
-      setCompleted([]);
-      setCurrent(0);
+      resetSurah();
     } else {
-      setCompleted((c) => (c.includes(current) ? c : [...c, current]));
-      setCurrent((c) => c + 1);
+      const nextCompleted = completed.includes(current)
+        ? completed
+        : [...completed, current];
+      update({ surahCompleted: nextCompleted, surahCurrent: current + 1 });
     }
-  };
-
-  const resetSurah = () => {
-    setCompleted([]);
-    setCurrent(0);
   };
 
   return (
@@ -112,7 +77,7 @@ export default function PembiasaanPagi() {
           Bacaan Pembuka (Selang-seling)
         </p>
         <div className="flex flex-wrap gap-2">
-          {PRE_READING.map((label, i) => {
+          {preReading.map((label, i) => {
             const active = label === activePre;
             return (
               <div
@@ -286,7 +251,7 @@ export default function PembiasaanPagi() {
               <button
                 key={i}
                 type="button"
-                onClick={() => setCurrent(i)}
+                onClick={() => update({ surahCurrent: i })}
                 className={[
                   "flex items-start gap-2 rounded-xl border p-2.5 text-left transition-all",
                   active
