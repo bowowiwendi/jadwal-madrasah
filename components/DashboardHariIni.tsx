@@ -69,6 +69,9 @@ export default function DashboardHariIni() {
     month: "long",
     year: "numeric",
   });
+  const surahCurrentBesok = (surahCurrentCtx + 1) % surahTotalCtx;
+  const currentSurahsBesok = surahDays[surahCurrentBesok]?.surahs ?? [];
+  const activePreBesok = settings.preReading[surahCurrentBesok % settings.preReading.length];
 
   const dateLabel = today.toLocaleDateString("id-ID", {
     weekday: "long",
@@ -340,23 +343,71 @@ export default function DashboardHariIni() {
 
       {!isLiburBesok && dayKeyBesok && (
         <>
-          <div className="mb-4 mt-8 flex items-center gap-3 rounded-2xl border border-sky-200 bg-gradient-to-br from-sky-50 to-blue-50 p-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-500 text-white shadow-sm">
-              <CalendarClock className="h-5 w-5" />
+          <h3 className="mb-3 mt-8 flex items-center gap-2 text-sm font-bold text-sky-800">
+            <CalendarClock className="h-4 w-4" />
+            Besok — {dateLabelBesok}
+          </h3>
+
+          <div className="mb-6 overflow-hidden rounded-2xl border border-sky-200 bg-gradient-to-br from-sky-50 to-blue-50 shadow-sm">
+            <div className="flex items-center gap-3 border-b border-sky-100 bg-white/60 px-5 py-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-600 text-white">
+                <CalendarClock className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-sky-900">Info Besok</h3>
+                <p className="text-xs text-sky-700">
+                  Seragam, piket &amp; kegiatan besok.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-sm font-bold text-sky-900">
-                Jadwal Besok — {dateLabelBesok}
-              </h3>
-              <p className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-sky-700">
-                <span>Hari: {weekdayBesok}</span>
-                <span>Pasaran: {pasaranBesok}</span>
-                <span>Seragam: {uniformBesok}</span>
-                {piketBesok && <span>Piket: {piketBesok.Kelas}</span>}
-                {kegiatanJumatBesok && (
-                  <span>{kegiatanJumatBesok}</span>
-                )}
-              </p>
+            <div className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2">
+              <div className="rounded-xl border border-sky-200 bg-white p-4">
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-sky-500">Seragam Besok</p>
+                <p className="text-sm font-bold text-sky-800">{uniformBesok}</p>
+              </div>
+
+              {piketBesok && (
+                <div className="rounded-xl border border-sky-200 bg-white p-4">
+                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-sky-500">
+                    Piket ({piketBesok.Kelas})
+                  </p>
+                  <p className="text-xs text-slate-500">Sholat Duha &amp; Duhur</p>
+                  <p className="text-sm font-semibold text-sky-800">{piketBesok["Sholat Duha dan Duhur"]}</p>
+                  <p className="mt-1.5 text-xs text-slate-500">Salam Sapa</p>
+                  <p className="text-sm font-semibold text-sky-800">{piketBesok["Salam Sapa"]}</p>
+                </div>
+              )}
+
+              {upacaraBesok && (
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 sm:col-span-2">
+                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-amber-600">Upacara Bendera Besok</p>
+                  <p className="text-sm font-bold text-amber-900">{upacaraBesok["Hari, Tanggal"]}</p>
+                  <p className="text-xs text-amber-800">Petugas: {upacaraBesok.Petugas} · Pembina: {upacaraBesok.Pembina}</p>
+                </div>
+              )}
+
+              {kegiatanJumatBesok && (
+                <div className="rounded-xl border border-teal-200 bg-teal-50 p-4 sm:col-span-2">
+                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-teal-600">Kegiatan Jum&apos;at Besok</p>
+                  <p className="text-sm font-bold text-teal-800">{kegiatanJumatBesok}</p>
+                </div>
+              )}
+
+              {/* Pembiasaan Pagi Besok */}
+              <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 sm:col-span-2">
+                <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-emerald-600">
+                  Pembiasaan Pagi Besok
+                </p>
+                <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm">
+                  <span className="font-semibold text-emerald-800">
+                    Bacaan: {activePreBesok}
+                  </span>
+                  <span className="font-semibold text-emerald-800">
+                  Qur&apos;an:{" "}
+                    {currentSurahsBesok.map((s) => s.name).join(", ")}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
