@@ -9,17 +9,12 @@ import {
 } from "react";
 
 export interface AppSettings {
-  /** Daftar bacaan pembuka yang diputar selang-seling (Pembiasaan Pagi). */
   preReading: string[];
-  /** Hari ke-berapa (index 0) pembacaan Juz 'Amma yang sedang aktif. */
   surahCurrent: number;
-  /** Daftar hari (index) Juz 'Amma yang sudah ditandai selesai. */
   surahCompleted: number[];
 }
 
-const KEY = "mijafa_settings_v1";
-
-export const DEFAULT_SETTINGS: AppSettings = {
+const DEFAULT_SETTINGS: AppSettings = {
   preReading: ["Asmaul Husna", "Doa-doa dalam Sholat"],
   surahCurrent: 0,
   surahCompleted: [],
@@ -34,40 +29,90 @@ interface CtxValue {
 
 const Ctx = createContext<CtxValue | null>(null);
 
+const STORAGE_KEY = "mijafa_settings_v1";
+
+async function fetchSettings(): Promise<AppSettings | null> {
+  try {
+    const res = await fetch("/api/admin-settings");
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data && typeof data === "object") return data as AppSettings;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+async function postSettings(s: AppSettings): Promise<boolean> {
+  try {
+    const res = await fetch("/api/admin-settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(s),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+function loadLocal(): AppSettings {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const data = JSON.parse(raw) as Partial<AppSettings>;
+      return {
+        preReading:
+          Array.isArray(data.preReading) && data.preReading.length > 0
+            ? data.preReading
+            : DEFAULT_SETTINGS.preReading,
+        surahCurrent:
+          typeof data.surahCurrent === "number"
+            ? data.surahCurrent
+            : DEFAULT_SETTINGS.surahCurrent,
+        surahCompleted: Array.isArray(data.surahCompleted)
+          ? data.surahCompleted
+          : DEFAULT_SETTINGS.surahCompleted,
+      };
+    }
+  } catch {
+    /* abaikan */
+  }
+  return DEFAULT_SETTINGS;
+}
+
+function saveLocal(s: AppSettings) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+  } catch {
+    /* abaikan */
+  }
+}
+
 export function AppSettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [hydrated, setHydrated] = useState(false);
 
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(KEY);
-      if (raw) {
-        const data = JSON.parse(raw) as Partial<AppSettings>;
-        setSettings({
-          preReading:
-            Array.isArray(data.preReading) && data.preReading.length > 0
-              ? data.preReading
-              : DEFAULT_SETTINGS.preReading,
-          surahCurrent:
-            typeof data.surahCurrent === "number" ? data.surahCurrent : 0,
-          surahCompleted: Array.isArray(data.surahCompleted)
-            ? data.surahCompleted
-            : [],
-        });
-      }
-    } catch {
-      /* abaikan jika gagal membaca penyimpanan */
+  const load = async () => {
+    const fromApi = await fetchSettings();
+    if (fromApi) {
+      setSettings(fromApi);
+    } else {
+      // Fallback: localStorage
+      setSettings(loadLocal());
     }
     setHydrated(true);
-  }, []);
+  };
 
   useEffect(() => {
+    load();
+  }, []);
+
+  // Persist ke API & localStorage setiap perubahan
+  useEffect(() => {
     if (!hydrated) return;
-    try {
-      localStorage.setItem(KEY, JSON.stringify(settings));
-    } catch {
-      /* abaikan jika gagal menyimpan */
-    }
+    postSettings(settings);
+    saveLocal(settings);
   }, [settings, hydrated]);
 
   const update: CtxValue["update"] = (patch) =>
