@@ -120,6 +120,13 @@ function TeacherCard({
 
 function TeacherSchedule({ teacher }: { teacher: Teacher }) {
   const subs = new Set(resolveSubjects(teacher));
+  const teacherClassKeys = new Set(
+    teacher.classes.flatMap((c) => {
+      const key = `KELAS ${c}`;
+      if (key in SCHEDULE) return [key];
+      return CLASS_ORDER.filter((k) => k.replace("KELAS ", "").startsWith(c));
+    })
+  );
   const times = SCHEDULE["KELAS 3"]
     .filter((s) => !s.isBreak)
     .map((s) => s.time);
@@ -129,6 +136,7 @@ function TeacherSchedule({ teacher }: { teacher: Teacher }) {
     days: DAYS.map((day) => {
       const found: { cls: string; subj: SubjectKey }[] = [];
       for (const cls of CLASS_ORDER) {
+        if (!teacherClassKeys.has(cls)) continue;
         const slot = SCHEDULE[cls].find((s) => s.time === time);
         if (!slot || slot.isBreak) continue;
         const subj = slot.cells[day];
