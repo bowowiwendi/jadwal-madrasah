@@ -52,7 +52,7 @@ export const JADWAL_SERAGAM: Seragam[] = [
   { "Hari / Waktu": "Kliwon 5", "Pakaian Seragam": "Gamis Putih" },
   { "Hari / Waktu": "Sabtu", "Pakaian Seragam": "Pramuka / PGRI" },
   { "Hari / Waktu": "Setiap Tgl 17", "Pakaian Seragam": "Korpri" },
-  { "Hari / Waktu": "Setiap Tgl 22", "Pakaian Seragam": "Kebaya" },
+  { "Hari / Waktu": "Setiap Tgl 2", "Pakaian Seragam": "Kebaya" },
 ];
 
 export const JADWAL_UPACARA: {
@@ -109,7 +109,7 @@ const pick = <T,>(arr: T[], n: number): T => arr[((n - 1) % arr.length + arr.len
 export function getTodayUniform(date: Date = new Date()): string {
   const tgl = date.getDate();
   if (tgl === 17) return "Korpri";
-  if (tgl === 22) return "Kebaya";
+  if (tgl === 2) return "Kebaya";
 
   const wd = getIndonesianWeekday(date);
   if (wd === "Senin" || wd === "Selasa") return "Hitam Putih";
