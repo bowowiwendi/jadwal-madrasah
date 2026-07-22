@@ -5,8 +5,8 @@ const KEY = "mijafa_settings_v1";
 
 const DEFAULT = {
   preReading: ["Asmaul Husna", "Doa-doa dalam Sholat"],
-  surahCurrent: 0,
-  surahCompleted: [],
+  surahOffset: 0,
+  surahStartDate: "",
 };
 
 function kvAvailable() {
@@ -35,13 +35,14 @@ export async function POST(request: Request) {
       preReading: Array.isArray(body.preReading)
         ? body.preReading
         : DEFAULT.preReading,
-      surahCurrent:
-        typeof body.surahCurrent === "number"
-          ? body.surahCurrent
-          : DEFAULT.surahCurrent,
-      surahCompleted: Array.isArray(body.surahCompleted)
-        ? body.surahCompleted
-        : DEFAULT.surahCompleted,
+      surahOffset:
+        typeof body.surahOffset === "number"
+          ? body.surahOffset
+          : DEFAULT.surahOffset,
+      surahStartDate:
+        typeof body.surahStartDate === "string" && body.surahStartDate
+          ? body.surahStartDate
+          : DEFAULT.surahStartDate,
     };
     await kv.set(KEY, payload);
     return NextResponse.json({ ok: true });
