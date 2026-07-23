@@ -50,7 +50,7 @@ export const JADWAL_SERAGAM: Seragam[] = [
   { "Hari / Waktu": "Kliwon 3", "Pakaian Seragam": "Gamis Kuning" },
   { "Hari / Waktu": "Kliwon 4", "Pakaian Seragam": "Gamis Hijau" },
   { "Hari / Waktu": "Kliwon 5", "Pakaian Seragam": "Gamis Putih" },
-  { "Hari / Waktu": "Sabtu", "Pakaian Seragam": "Pramuka / PGRI" },
+  { "Hari / Waktu": "Sabtu", "Pakaian Seragam": "PGRI" },
   { "Hari / Waktu": "Setiap Tgl 17", "Pakaian Seragam": "Korpri" },
   { "Hari / Waktu": "Setiap Tgl 2", "Pakaian Seragam": "Kebaya" },
 ];
@@ -70,7 +70,7 @@ export const JADWAL_UPACARA: {
     { No: 8, "Hari, Tanggal": "Senin, 09 11 2026", Petugas: "6B", Pembina: "B. Ulwiyas" },
     { No: 9, "Hari, Tanggal": "Rabu, 25 11 2026", Petugas: "Guru", Pembina: "B. Zaidah" },
     { No: 10, "Hari, Tanggal": "Senin, 11 01 2027", Petugas: "5A", Pembina: "P. Wendi" },
-    { No: 11, "Hari, Tanggal": "Senin, 25 01 2027", Petugas: "5B", Pembina: "B. Mala" },
+    { No: 11, "Hari, Tanggal": "Senin, 25 01 2027", Petugas: "5B", Pembina: "B. Amal" },
     { No: 12, "Hari, Tanggal": "Senin, 22 03 2027", Petugas: "4B", Pembina: "B. Wulan" },
   ],
   catatan: [
@@ -114,7 +114,7 @@ export function getTodayUniform(date: Date = new Date()): string {
   const wd = getIndonesianWeekday(date);
   if (wd === "Senin" || wd === "Selasa") return "Hitam Putih";
   if (wd === "Kamis") return "Batik Bebas";
-  if (wd === "Sabtu") return "Pramuka / PGRI";
+  if (wd === "Sabtu") return "PGRI";
   if (wd === "Rabu") {
     const n = occurrenceInMonth(date, (d) => getIndonesianWeekday(d) === "Rabu");
     return pick(RABU, n);
