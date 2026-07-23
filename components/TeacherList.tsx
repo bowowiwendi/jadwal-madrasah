@@ -119,7 +119,7 @@ function TeacherCard({
 }
 
 function TeacherSchedule({ teacher }: { teacher: Teacher }) {
-  const subs = new Set(resolveSubjects(teacher));
+  const allSubs = new Set(resolveSubjects(teacher));
   const teacherClassKeys = new Set(
     teacher.classes.flatMap((c) => {
       const key = `KELAS ${c}`;
@@ -131,6 +131,15 @@ function TeacherSchedule({ teacher }: { teacher: Teacher }) {
     .filter((s) => !s.isBreak)
     .map((s) => s.time);
 
+  const classToSubs: Record<string, Set<SubjectKey>> = {};
+  for (const cls of teacher.classes) {
+    if (teacher.perClass?.[cls]) {
+      classToSubs[cls] = new Set(teacher.perClass[cls]);
+    } else {
+      classToSubs[cls] = allSubs;
+    }
+  }
+
   const rows = times.map((time) => ({
     time,
     days: DAYS.map((day) => {
@@ -140,7 +149,9 @@ function TeacherSchedule({ teacher }: { teacher: Teacher }) {
         const slot = SCHEDULE[cls].find((s) => s.time === time);
         if (!slot || slot.isBreak) continue;
         const subj = slot.cells[day];
-        if (subj && subs.has(subj)) found.push({ cls, subj });
+        const short = cls.replace("KELAS ", "");
+        const subs = classToSubs[short];
+        if (subj && subs?.has(subj)) found.push({ cls, subj });
       }
       return found;
     }),

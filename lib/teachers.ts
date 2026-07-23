@@ -26,6 +26,8 @@ export interface Teacher {
   except?: SubjectKey[];
   extra?: SubjectKey[];
   subjects?: SubjectKey[];
+  /** Override subjects per-class. Key is class short name (e.g. "6A"), value is the subjects list for that class. */
+  perClass?: Record<string, SubjectKey[]>;
   note?: string;
 }
 
@@ -79,6 +81,10 @@ export const TEACHERS: Teacher[] = [
     name: "Pak Wendi",
     classes: ["4A", "4B", "5A", "5B", "6A", "6B"],
     subjects: ["BTQ", "B. Arab"],
+    perClass: {
+      "6A": ["B. Arab"],
+      "6B": ["B. Arab"],
+    },
   },
   {
     id: 9,
