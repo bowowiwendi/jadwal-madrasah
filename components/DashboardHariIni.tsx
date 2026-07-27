@@ -108,10 +108,10 @@ export default function DashboardHariIni() {
         </div>
 
         {isLibur && (
-          <div className="flex items-center gap-3 px-5 py-4 text-slate-600">
-            <CalendarOff className="h-5 w-5 text-slate-400" />
-            <p className="text-sm font-medium">
-              Hari ini Minggu — sekolah libur, tidak ada jadwal pelajaran.
+          <div className="flex items-center gap-3 border-t border-slate-200 px-5 py-3 text-slate-500">
+            <CalendarOff className="h-4 w-4 shrink-0" />
+            <p className="text-xs font-medium">
+              Hari ini Minggu — libur. Menampilkan jadwal untuk Senin besok.
             </p>
           </div>
         )}
@@ -141,6 +141,109 @@ export default function DashboardHariIni() {
           </motion.div>
         )}
       </div>
+
+      {isLibur && dayKeyBesok && (
+        <>
+          <div className="mb-6 overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 shadow-sm">
+            <div className="flex items-center gap-3 border-b border-emerald-100 bg-white/60 px-5 py-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500 text-white">
+                <Sun className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-emerald-900">
+                  Pembiasaan Pagi — {weekdayBesok}
+                </h3>
+                <p className="text-xs text-emerald-700">
+                  Kegiatan sebelum pelajaran dimulai.
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-3">
+              <div className="rounded-xl border border-emerald-200 bg-white p-4">
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-emerald-500">
+                  Bacaan Pembuka
+                </p>
+                <p className="flex items-center gap-2 text-sm font-bold text-emerald-800">
+                  {activePreBesok}
+                </p>
+              </div>
+              <div className="rounded-xl border border-emerald-200 bg-white p-4">
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-emerald-500">
+                  Baca Al-Qur&apos;an (Juz &apos;Amma)
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {currentSurahsBesok.map((s) => (
+                    <span
+                      key={s.no}
+                      className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-200"
+                    >
+                      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[9px] font-bold text-white">
+                        {s.no}
+                      </span>
+                      {s.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="rounded-xl border border-emerald-200 bg-white p-4">
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-emerald-500">
+                  Doa-doa dalam Sholat
+                </p>
+                <p className="text-sm font-bold text-emerald-800">
+                  {SHOLAT_DOA.length} Doa
+                </p>
+                <p className="mt-1 text-xs text-slate-500">
+                  Dibaca berurutan dari Takbiratul Ikhram hingga Tasyahud Akhir.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mb-6 overflow-hidden rounded-2xl border border-sky-200 bg-gradient-to-br from-sky-50 to-blue-50 shadow-sm">
+            <div className="flex items-center gap-3 border-b border-sky-100 bg-white/60 px-5 py-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-600 text-white">
+                <CalendarClock className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-sky-900">Info {weekdayBesok}</h3>
+                <p className="text-xs text-sky-700">
+                  Seragam, piket &amp; kegiatan.
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2">
+              <div className="rounded-xl border border-sky-200 bg-white p-4">
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-sky-500">Seragam</p>
+                <p className="text-sm font-bold text-sky-800">{uniformBesok}</p>
+              </div>
+              {piketBesok && (
+                <div className="rounded-xl border border-sky-200 bg-white p-4">
+                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-sky-500">
+                    Piket ({piketBesok.Kelas})
+                  </p>
+                  <p className="text-xs text-slate-500">Sholat Duha &amp; Duhur</p>
+                  <p className="text-sm font-semibold text-sky-800">{piketBesok["Sholat Duha dan Duhur"]}</p>
+                  <p className="mt-1.5 text-xs text-slate-500">Salam Sapa</p>
+                  <p className="text-sm font-semibold text-sky-800">{piketBesok["Salam Sapa"]}</p>
+                </div>
+              )}
+              {upacaraBesok && (
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 sm:col-span-2">
+                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-amber-600">Upacara Bendera</p>
+                  <p className="text-sm font-bold text-amber-900">{upacaraBesok["Hari, Tanggal"]}</p>
+                  <p className="text-xs text-amber-800">Petugas: {upacaraBesok.Petugas} · Pembina: {upacaraBesok.Pembina}</p>
+                </div>
+              )}
+              {kegiatanJumatBesok && (
+                <div className="rounded-xl border border-teal-200 bg-teal-50 p-4 sm:col-span-2">
+                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-teal-600">Kegiatan Jum&apos;at</p>
+                  <p className="text-sm font-bold text-teal-800">{kegiatanJumatBesok}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
 
       {!isLibur && dayKey && (
         <div className="mb-6 overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 shadow-sm">
