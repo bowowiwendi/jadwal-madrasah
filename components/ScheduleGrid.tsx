@@ -4,16 +4,18 @@ import { motion } from "framer-motion";
 import { Coffee } from "lucide-react";
 import { DAYS, DAY_SHORT, type SubjectKey } from "@/lib/subjects";
 import type { Slot } from "@/lib/data";
+import { getTeachersForClassSubject } from "@/lib/teachers";
 import SubjectCell from "./SubjectCell";
 
 interface ScheduleGridProps {
   slots: Slot[];
   highlight: SubjectKey | null;
+  classKey: string;
 }
 
 const GRID = "grid grid-cols-[112px_repeat(6,minmax(112px,1fr))]";
 
-export default function ScheduleGrid({ slots, highlight }: ScheduleGridProps) {
+export default function ScheduleGrid({ slots, highlight, classKey }: ScheduleGridProps) {
   return (
     <div className="overflow-x-auto scrollbar-thin rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="min-w-[840px]">
@@ -79,9 +81,16 @@ export default function ScheduleGrid({ slots, highlight }: ScheduleGridProps) {
                     key={day}
                     className="border-l border-slate-100 p-1.5"
                   >
-                    <SubjectCell
+                     <SubjectCell
                       subject={slot.cells[day]}
                       highlight={highlight}
+                      teacher={
+                        slot.cells[day]
+                          ? getTeachersForClassSubject(classKey, slot.cells[day] as SubjectKey)
+                              .map((t) => t.name)
+                              .join(", ")
+                          : undefined
+                      }
                     />
                   </div>
                 ))}

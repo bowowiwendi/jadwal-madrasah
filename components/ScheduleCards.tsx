@@ -4,16 +4,19 @@ import { motion } from "framer-motion";
 import { CalendarDays, Clock, Coffee } from "lucide-react";
 import { DAYS, type SubjectKey } from "@/lib/subjects";
 import type { Slot } from "@/lib/data";
+import { getTeachersForClassSubject } from "@/lib/teachers";
 import SubjectCell from "./SubjectCell";
 
 interface ScheduleCardsProps {
   slots: Slot[];
   highlight: SubjectKey | null;
+  classKey: string;
 }
 
 export default function ScheduleCards({
   slots,
   highlight,
+  classKey,
 }: ScheduleCardsProps) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -61,8 +64,18 @@ export default function ScheduleCards({
                       {slot.time.split(" - ")[1]}
                     </span>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <SubjectCell subject={subject} highlight={highlight} />
+                   <div className="min-w-0 flex-1">
+                    <SubjectCell
+                      subject={subject}
+                      highlight={highlight}
+                      teacher={
+                        subject
+                          ? getTeachersForClassSubject(classKey, subject as SubjectKey)
+                              .map((t) => t.name)
+                              .join(", ")
+                          : undefined
+                      }
+                    />
                   </div>
                 </div>
               );

@@ -141,3 +141,38 @@ export function teacherInitials(name: string): string {
     .slice(0, 2)
     .toUpperCase();
 }
+
+/**
+ * Returns the teacher(s) who teach `subject` in `classKey`.
+ * `classKey` is the short form, e.g. "4A", "5B", "3".
+ */
+export function getTeachersForClassSubject(
+  classKey: string,
+  subject: SubjectKey
+): Teacher[] {
+  const SCHEDULE_KEY = `KELAS ${classKey}`;
+  const matched: Teacher[] = [];
+
+  for (const t of TEACHERS) {
+    const teachesThisClass = t.classes.some(
+      (c) =>
+        c === classKey ||
+        (classKey.startsWith(c) && c.length < classKey.length) ||
+        (c.startsWith(classKey) && classKey.length < c.length)
+    );
+    if (!teachesThisClass) continue;
+
+    let subs: SubjectKey[];
+    if (t.perClass?.[classKey]) {
+      subs = t.perClass[classKey];
+    } else if (t.subjectsAll) {
+      subs = resolveSubjects(t);
+    } else {
+      subs = t.subjects ?? [];
+    }
+
+    if (subs.includes(subject)) matched.push(t);
+  }
+
+  return matched;
+}

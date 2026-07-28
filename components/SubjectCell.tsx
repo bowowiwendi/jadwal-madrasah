@@ -4,12 +4,14 @@ interface SubjectCellProps {
   subject: SubjectKey | null;
   highlight: SubjectKey | null;
   className?: string;
+  teacher?: string;
 }
 
 export default function SubjectCell({
   subject,
   highlight,
   className = "",
+  teacher,
 }: SubjectCellProps) {
   if (!subject) {
     return (
@@ -43,6 +45,11 @@ export default function SubjectCell({
       <span className="mt-0.5 line-clamp-1 text-[10.5px] font-medium leading-tight opacity-80">
         {meta.name}
       </span>
+      {teacher && (
+        <span className="mt-0.5 line-clamp-1 text-[9px] font-medium leading-tight text-white/80">
+          {teacher}
+        </span>
+      )}
     </div>
   );
 }

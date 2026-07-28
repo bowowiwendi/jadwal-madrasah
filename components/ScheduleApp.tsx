@@ -132,11 +132,11 @@ export default function ScheduleApp() {
                 >
                   {/* Desktop / tablet table */}
                   <div className="hidden md:block">
-                    <ScheduleGrid slots={slots} highlight={highlight} />
+                    <ScheduleGrid slots={slots} highlight={highlight} classKey={activeClass} />
                   </div>
                   {/* Mobile card layout */}
                   <div className="md:hidden">
-                    <ScheduleCards slots={slots} highlight={highlight} />
+                    <ScheduleCards slots={slots} highlight={highlight} classKey={activeClass} />
                   </div>
                 </motion.div>
               </AnimatePresence>
