@@ -31,7 +31,7 @@ export default function SubjectCell({
   return (
     <div
       className={[
-        "flex h-full min-h-[52px] flex-col justify-center rounded-lg border px-2.5 py-1.5 text-center transition-all duration-300",
+        "flex min-h-[64px] flex-col justify-center rounded-lg border px-2.5 py-2 text-center transition-all duration-300",
         meta.badge,
         isHighlighted ? `ring-2 ${meta.ring} shadow-sm scale-[1.03]` : "",
         isDimmed ? "opacity-35 saturate-50" : "",
