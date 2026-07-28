@@ -46,7 +46,7 @@ export default function SubjectCell({
         {meta.name}
       </span>
       {teacher && (
-        <span className="mt-0.5 line-clamp-1 text-[9px] font-medium leading-tight text-white/80">
+        <span className="mt-0.5 line-clamp-1 text-[9px] font-medium leading-tight opacity-60">
           {teacher}
         </span>
       )}
