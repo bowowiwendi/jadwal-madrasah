@@ -89,6 +89,15 @@ export const KEGIATAN_JUMAT: KegiatanJumat[] = [
   { "Jadwal Olahraga / Kegiatan Jumat": "Jumat Kliwon", Kegiatan: "Yasin dan Tahlil" },
 ];
 
+export const PETUGAS_PEMBIASAAN: Record<string, string> = {
+  Senin: "6A",
+  Selasa: "6B",
+  Rabu: "5A",
+  Kamis: "5B",
+  Jumat: "4A",
+  Sabtu: "4B",
+};
+
 const RABU = ["Batik Ijo", "Batik Biru", "Batik Coklat", "Batik Ungu", "Batik Oranye / Kecoklatan"];
 const JUMAT_KAOS = ["Kaos Pink", "Kaos KKG", "Kaos Kemah", "Kaos Biru Piknik"];
 const KLIWON_GAMIS = ["Gamis Ungu", "Gamis Hitam", "Gamis Kuning", "Gamis Hijau", "Gamis Putih"];
@@ -174,4 +183,9 @@ export function getTodayKegiatanJumat(date: Date = new Date()): string | null {
   if (pasaran === "Kliwon") return "Yasin dan Tahlil";
   const n = occurrenceInMonth(date, (d) => getIndonesianWeekday(d) === "Jumat");
   return pick(["Jalan Sehat", "Senam", "Bersih-bersih"], n);
+}
+
+export function getTodayPetugasPembiasaan(date: Date = new Date()): string | null {
+  const wd = getIndonesianWeekday(date);
+  return PETUGAS_PEMBIASAAN[wd] ?? null;
 }

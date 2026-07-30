@@ -8,6 +8,7 @@ import {
   JADWAL_SERAGAM,
   JADWAL_UPACARA,
   KEGIATAN_JUMAT,
+  PETUGAS_PEMBIASAAN,
 } from "@/lib/school";
 
 function Section({
@@ -109,6 +110,16 @@ export default function InfoSekolah() {
             rows={KEGIATAN_JUMAT.map((k) => [
               k["Jadwal Olahraga / Kegiatan Jumat"],
               k.Kegiatan,
+            ])}
+          />
+        </Section>
+
+        <Section icon={Users} title="Petugas Pembiasaan Pagi">
+          <Table
+            headers={["Hari", "Kelas Petugas"]}
+            rows={Object.entries(PETUGAS_PEMBIASAAN).map(([hari, kelas]) => [
+              hari,
+              `Kelas ${kelas}`,
             ])}
           />
         </Section>

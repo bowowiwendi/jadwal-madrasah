@@ -21,6 +21,7 @@ import {
   getTodayUniform,
   getTodayUpacara,
   getTodayKegiatanJumat,
+  getTodayPetugasPembiasaan,
   getNextUpacara,
 } from "@/lib/school";
 import SubjectCell from "./SubjectCell";
@@ -51,6 +52,7 @@ export default function DashboardHariIni() {
   const uniform = getTodayUniform(today);
   const upacara = getTodayUpacara(today);
   const kegiatanJumat = getTodayKegiatanJumat(today);
+  const petugasPembiasaan = getTodayPetugasPembiasaan(today);
 
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
@@ -64,6 +66,7 @@ export default function DashboardHariIni() {
   const uniformBesok = getTodayUniform(tomorrow);
   const upacaraBesok = getTodayUpacara(tomorrow);
   const kegiatanJumatBesok = getTodayKegiatanJumat(tomorrow);
+  const petugasPembiasaanBesok = getTodayPetugasPembiasaan(tomorrow);
   const dateLabelBesok = tomorrow.toLocaleDateString("id-ID", {
     weekday: "long",
     day: "numeric",
@@ -158,7 +161,7 @@ export default function DashboardHariIni() {
                 </p>
               </div>
             </div>
-            <div className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-xl border border-emerald-200 bg-white p-4">
                 <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-emerald-500">
                   Bacaan Pembuka
@@ -194,6 +197,21 @@ export default function DashboardHariIni() {
                 </p>
                 <p className="mt-1 text-xs text-slate-500">
                   Dibaca berurutan dari Takbiratul Ikhram hingga Tasyahud Akhir.
+                </p>
+              </div>
+              <div className="rounded-xl border border-emerald-200 bg-white p-4">
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-emerald-500">
+                  Petugas Pembiasaan
+                </p>
+                {petugasPembiasaanBesok ? (
+                  <p className="text-sm font-bold text-emerald-800">
+                    Kelas {petugasPembiasaanBesok}
+                  </p>
+                ) : (
+                  <p className="text-sm text-slate-400">—</p>
+                )}
+                <p className="mt-1 text-xs text-slate-500">
+                  Memimpin pembiasaan pagi hari {weekdayBesok}.
                 </p>
               </div>
             </div>
@@ -312,6 +330,23 @@ export default function DashboardHariIni() {
               </p>
               <p className="mt-1 text-xs text-slate-500">
                 Dibaca berurutan dari Takbiratul Ikhram hingga Tasyahud Akhir.
+              </p>
+            </div>
+
+            {/* Petugas Pembiasaan */}
+            <div className="rounded-xl border border-emerald-200 bg-white p-4">
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-emerald-500">
+                Petugas Pembiasaan
+              </p>
+              {petugasPembiasaan ? (
+                <p className="text-sm font-bold text-emerald-800">
+                  Kelas {petugasPembiasaan}
+                </p>
+              ) : (
+                <p className="text-sm text-slate-400">—</p>
+              )}
+              <p className="mt-1 text-xs text-slate-500">
+                Memimpin pembiasaan pagi hari ini.
               </p>
             </div>
           </div>
@@ -439,6 +474,11 @@ export default function DashboardHariIni() {
                 Qur&apos;an:{" "}
                   {currentSurahsBesok.map((s) => s.name).join(", ")}
                 </span>
+                {petugasPembiasaanBesok && (
+                  <span className="font-semibold text-emerald-800">
+                    Petugas: Kelas {petugasPembiasaanBesok}
+                  </span>
+                )}
               </div>
             </div>
           </div>
