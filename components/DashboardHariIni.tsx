@@ -67,6 +67,10 @@ export default function DashboardHariIni() {
   const upacaraBesok = getTodayUpacara(tomorrow);
   const kegiatanJumatBesok = getTodayKegiatanJumat(tomorrow);
   const petugasPembiasaanBesok = getTodayPetugasPembiasaan(tomorrow);
+  const lusa = new Date(today);
+  lusa.setDate(today.getDate() + 2);
+  const weekdayLusa = getIndonesianWeekday(lusa);
+  const petugasPembiasaanLusa = getTodayPetugasPembiasaan(lusa);
   const dateLabelBesok = tomorrow.toLocaleDateString("id-ID", {
     weekday: "long",
     day: "numeric",
@@ -205,13 +209,18 @@ export default function DashboardHariIni() {
                 </p>
                 {petugasPembiasaanBesok ? (
                   <p className="text-sm font-bold text-emerald-800">
-                    Kelas {petugasPembiasaanBesok}
+                    Hari ini ({weekdayBesok}): Kelas {petugasPembiasaanBesok}
                   </p>
                 ) : (
                   <p className="text-sm text-slate-400">—</p>
                 )}
+                {petugasPembiasaanLusa && (
+                  <p className="mt-1 text-xs font-medium text-emerald-600">
+                    Besok ({weekdayLusa}): Kelas {petugasPembiasaanLusa}
+                  </p>
+                )}
                 <p className="mt-1 text-xs text-slate-500">
-                  Memimpin pembiasaan pagi hari {weekdayBesok}.
+                  Memimpin pembiasaan pagi.
                 </p>
               </div>
             </div>
@@ -340,13 +349,18 @@ export default function DashboardHariIni() {
               </p>
               {petugasPembiasaan ? (
                 <p className="text-sm font-bold text-emerald-800">
-                  Kelas {petugasPembiasaan}
+                  Hari ini: Kelas {petugasPembiasaan}
                 </p>
               ) : (
                 <p className="text-sm text-slate-400">—</p>
               )}
+              {petugasPembiasaanBesok && (
+                <p className="mt-1 text-xs font-medium text-emerald-600">
+                  Besok: Kelas {petugasPembiasaanBesok}
+                </p>
+              )}
               <p className="mt-1 text-xs text-slate-500">
-                Memimpin pembiasaan pagi hari ini.
+                Memimpin pembiasaan pagi.
               </p>
             </div>
           </div>
