@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   BookOpen,
@@ -12,14 +11,14 @@ import {
   Sun,
 } from "lucide-react";
 
-import { buildDays, JUZ_AMMA, SHOLAT_DOA } from "@/lib/routine";
+import { SURAH_DAYS, SHOLAT_DOA } from "@/lib/routine";
 import { useSettings } from "./SettingsContext";
 
 export default function PembiasaanPagi() {
   const { settings, update, surahCurrent, surahTotal } = useSettings();
   const preReading = settings.preReading;
 
-  const surahDays = useMemo(() => buildDays([...JUZ_AMMA].reverse()), []);
+  const surahDays = SURAH_DAYS;
   const completedCount = surahCurrent;
 
   const activePre = preReading[surahCurrent % preReading.length];

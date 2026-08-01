@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from "react";
 
-import { buildDays, JUZ_AMMA } from "@/lib/routine";
+import { SURAH_DAYS } from "@/lib/routine";
 
 export interface AppSettings {
   preReading: string[];
@@ -37,7 +37,7 @@ interface CtxValue {
 
 const Ctx = createContext<CtxValue | null>(null);
 
-const STORAGE_KEY = "mijafa_settings_v1";
+const STORAGE_KEY = "mijafa_settings_v2";
 
 function daysSince(dateStr: string, today: Date): number {
   const start = new Date(dateStr + "T00:00:00");
@@ -124,10 +124,7 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [hydrated, setHydrated] = useState(false);
 
-  const surahTotal = useMemo(
-    () => buildDays([...JUZ_AMMA].reverse()).length,
-    []
-  );
+  const surahTotal = SURAH_DAYS.length;
 
   const surahCurrent = useMemo(() => {
     if (!surahTotal) return 0;

@@ -81,13 +81,26 @@ export function buildDays(surahs: Surah[]): DayPlan[] {
   return days;
 }
 
+/** Rencana bacaan Juz 'Amma dengan urutan mundur (An-Nas → ... → An-Naba'),
+ *  kecuali Al-Fatihah yang digabung di hari pertama bersama An-Nas s.d.
+ *  Al-Ikhlas. Surah pendek lain digabung (maks 3/hari). */
+function buildSurahDays(): DayPlan[] {
+  const reversed = [...JUZ_AMMA].reverse();
+  const alFatihah = reversed[reversed.length - 1];
+  const days = buildDays(reversed.slice(0, -1));
+  days[0] = { surahs: [{ ...alFatihah, long: false }, ...days[0].surahs] };
+  return days;
+}
+
+export const SURAH_DAYS: DayPlan[] = buildSurahDays();
+
 export const PRE_READING = [
   "Asmaul Husna",
   "Doa-doa dalam Sholat",
 ] as const;
 
 export interface TodayRoutine {
-  /** Hari ke-berapa dalam siklus Juz 'Amma (mundur). */
+  /** Hari ke-berapa dalam siklus Juz 'Amma (Al-Fatihah + An-Nas → An-Naba'). */
   index: number;
   total: number;
   /** Bacaan pembuka selang-seling untuk hari ini. */
@@ -101,7 +114,7 @@ export function getTodayRoutine(
   preReading: readonly string[] = PRE_READING,
   date: Date = new Date()
 ): TodayRoutine {
-  const days = buildDays([...JUZ_AMMA].reverse());
+  const days = SURAH_DAYS;
   const total = days.length;
   const j = gregorianToJDN(
     date.getFullYear(),

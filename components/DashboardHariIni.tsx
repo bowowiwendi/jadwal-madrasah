@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   BookOpen,
@@ -14,7 +13,7 @@ import {
 import { CLASS_ORDER, SCHEDULE } from "@/lib/data";
 import { DAYS, SUBJECTS, type SubjectKey } from "@/lib/subjects";
 import { getIndonesianWeekday, getPasaran } from "@/lib/calendar";
-import { buildDays, JUZ_AMMA, SHOLAT_DOA } from "@/lib/routine";
+import { SURAH_DAYS, SHOLAT_DOA } from "@/lib/routine";
 import { useSettings } from "./SettingsContext";
 import {
   getTodayPiket,
@@ -44,7 +43,7 @@ export default function DashboardHariIni() {
 
   const { settings, surahCurrent: surahCurrentCtx, surahTotal: surahTotalCtx } = useSettings();
 
-  const surahDays = useMemo(() => buildDays([...JUZ_AMMA].reverse()), []);
+  const surahDays = SURAH_DAYS;
   const currentSurahs = surahDays[surahCurrentCtx]?.surahs ?? [];
   const activePre = settings.preReading[surahCurrentCtx % settings.preReading.length];
 
@@ -324,8 +323,8 @@ export default function DashboardHariIni() {
                 ))}
               </div>
               <p className="mt-2 text-xs text-slate-500">
-                Hari ke-{surahCurrentCtx + 1} dari {surahTotalCtx} (mundur: An-Nas →
-                An-Naba').
+                Hari ke-{surahCurrentCtx + 1} dari {surahTotalCtx} (Al-Fatihah +
+                An-Nas → An-Naba').
               </p>
             </div>
 

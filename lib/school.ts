@@ -102,6 +102,24 @@ const RABU = ["Batik Ijo", "Batik Biru", "Batik Coklat", "Batik Ungu", "Batik Or
 const JUMAT_KAOS = ["Kaos Pink", "Kaos KKG", "Kaos Kemah", "Kaos Biru Piknik"];
 const KLIWON_GAMIS = ["Gamis Ungu", "Gamis Hitam", "Gamis Kuning", "Gamis Hijau", "Gamis Putih"];
 
+/** Rotasi kaos Jumat berjalan terus tanpa reset tiap bulan.
+ *  Jumat 31-07-2026 = Kaos KKG (indeks 1). Setiap Jumat berikutnya maju 1
+ *  giliran, termasuk Jumat yang memakai gamis (Kliwon) / Korpri (tgl 17). */
+const JUMAT_KAOS_ANCHOR = new Date(2026, 6, 31);
+const JUMAT_KAOS_ANCHOR_INDEX = 1;
+
+function jumatKaosStep(date: Date): number {
+  const diffDays = Math.round(
+    (date.getTime() - JUMAT_KAOS_ANCHOR.getTime()) / 86400000
+  );
+  const weeks = Math.floor(diffDays / 7);
+  return (
+    (((JUMAT_KAOS_ANCHOR_INDEX + weeks) % JUMAT_KAOS.length) +
+      JUMAT_KAOS.length) %
+    JUMAT_KAOS.length
+  );
+}
+
 function occurrenceInMonth(date: Date, matcher: (d: Date) => boolean): number {
   let count = 0;
   const y = date.getFullYear();
@@ -134,8 +152,7 @@ export function getTodayUniform(date: Date = new Date()): string {
       const n = occurrenceInMonth(date, (d) => getPasaran(d) === "Kliwon");
       return pick(KLIWON_GAMIS, n);
     }
-    const n = occurrenceInMonth(date, (d) => getIndonesianWeekday(d) === "Jumat");
-    return pick(JUMAT_KAOS, n);
+    return JUMAT_KAOS[jumatKaosStep(date)];
   }
   return "—";
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   BookOpen,
@@ -14,7 +13,7 @@ import {
   ArrowUp,
 } from "lucide-react";
 
-import { buildDays, JUZ_AMMA } from "@/lib/routine";
+import { SURAH_DAYS } from "@/lib/routine";
 import { useSettings } from "./SettingsContext";
 
 export default function AdminPanel({
@@ -27,7 +26,7 @@ export default function AdminPanel({
   const { settings, update, surahCurrent, surahTotal } = useSettings();
   const preReading = settings.preReading;
 
-  const surahDays = useMemo(() => buildDays([...JUZ_AMMA].reverse()), []);
+  const surahDays = SURAH_DAYS;
   const currentSurahs = surahDays[surahCurrent]?.surahs ?? [];
 
   const setItem = (i: number, val: string) => {

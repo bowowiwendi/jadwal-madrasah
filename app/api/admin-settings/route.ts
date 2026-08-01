@@ -1,7 +1,7 @@
 import { kv } from "@vercel/kv";
 import { NextResponse } from "next/server";
 
-const KEY = "mijafa_settings_v1";
+const KEY = "mijafa_settings_v2";
 
 const DEFAULT = {
   preReading: ["Asmaul Husna", "Doa-doa dalam Sholat"],
