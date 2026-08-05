@@ -102,6 +102,22 @@ const RABU = ["Batik Ijo", "Batik Biru", "Batik Coklat", "Batik Ungu", "Batik Or
 const JUMAT_KAOS = ["Kaos Pink", "Kaos KKG", "Kaos Kemah", "Kaos Biru Piknik"];
 const KLIWON_GAMIS = ["Gamis Ungu", "Gamis Hitam", "Gamis Kuning", "Gamis Hijau", "Gamis Putih"];
 
+/** Rotasi batik Rabu berjalan terus tanpa reset tiap bulan.
+ *  Rabu 05-08-2026 = Rabu ke-4 = Batik Ungu (indeks 3). Setiap Rabu
+ *  berikutnya maju 1 giliran. */
+const RABU_ANCHOR = new Date(2026, 7, 5);
+const RABU_ANCHOR_INDEX = 3;
+
+function rabuStep(date: Date): number {
+  const diffDays = Math.round(
+    (date.getTime() - RABU_ANCHOR.getTime()) / 86400000
+  );
+  const weeks = Math.floor(diffDays / 7);
+  return (
+    (((RABU_ANCHOR_INDEX + weeks) % RABU.length) + RABU.length) % RABU.length
+  );
+}
+
 /** Rotasi kaos Jumat berjalan terus tanpa reset tiap bulan.
  *  Jumat 31-07-2026 = Kaos KKG (indeks 1). Setiap Jumat berikutnya maju 1
  *  giliran, termasuk Jumat yang memakai gamis (Kliwon) / Korpri (tgl 17). */
@@ -143,8 +159,7 @@ export function getTodayUniform(date: Date = new Date()): string {
   if (wd === "Kamis") return "Batik Bebas";
   if (wd === "Sabtu") return "PGRI";
   if (wd === "Rabu") {
-    const n = occurrenceInMonth(date, (d) => getIndonesianWeekday(d) === "Rabu");
-    return pick(RABU, n);
+    return RABU[rabuStep(date)];
   }
   if (wd === "Jumat") {
     const pasaran = getPasaran(date);
