@@ -20,6 +20,7 @@ export default function AdminJadwalSection() {
     )
   );
   const [saved, setSaved] = useState(false);
+  const [newName, setNewName] = useState("");
 
   useEffect(() => {
     if (!loaded) return;
@@ -76,8 +77,45 @@ export default function AdminJadwalSection() {
     });
   };
 
+  const addClass = () => {
+    const name = newName.trim();
+    if (!name) return;
+    const key = /^KELAS/i.test(name) ? name : `KELAS ${name}`;
+    if (key in drafts) {
+      alert(`Kelas "${key}" sudah ada.`);
+      return;
+    }
+    setDrafts((d) => ({ ...d, [key]: [] }));
+    setActive(key);
+    setNewName("");
+  };
+
+  const removeClass = () => {
+    const draftClasses = Object.keys(drafts);
+    if (draftClasses.length <= 1) return;
+    if (!confirm(`Hapus kelas ${active} beserta seluruh jadwalnya?`)) return;
+    const rest = draftClasses.filter((c) => c !== active);
+    setDrafts((d) => {
+      const next = { ...d };
+      delete next[active];
+      return next;
+    });
+    setActive(rest[0] ?? "");
+  };
+
   const save = () => {
-    update({ schedule: { ...data.schedule, ...drafts } });
+    const removed = Object.keys(data.schedule).filter((c) => !(c in drafts));
+    update(
+      removed.length
+        ? {
+            schedule: { ...data.schedule, ...drafts },
+            teachers: data.teachers.map((t) => ({
+              ...t,
+              classes: t.classes.filter((c) => !removed.includes(c)),
+            })),
+          }
+        : { schedule: { ...data.schedule, ...drafts } }
+    );
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -89,6 +127,35 @@ export default function AdminJadwalSection() {
     <div className="space-y-4">
       <div>
         <ClassTabs classes={classes} active={active} onChange={setActive} />
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <input
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") addClass();
+          }}
+          placeholder="Nama kelas baru, mis. 6C"
+          className="min-w-[220px] flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+        />
+        <button
+          type="button"
+          onClick={addClass}
+          className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
+        >
+          <Plus className="h-4 w-4" />
+          Tambah Kelas
+        </button>
+        <button
+          type="button"
+          onClick={removeClass}
+          disabled={Object.keys(drafts).length <= 1}
+          className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-600 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <Trash2 className="h-4 w-4" />
+          Hapus Kelas
+        </button>
       </div>
 
       <p className="text-xs text-slate-400">
