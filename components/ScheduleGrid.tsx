@@ -5,6 +5,7 @@ import { Coffee } from "lucide-react";
 import { DAYS, DAY_SHORT, type SubjectKey } from "@/lib/subjects";
 import type { Slot } from "@/lib/data";
 import { getTeachersForClassSubject } from "@/lib/teachers";
+import { useAppData } from "./AppDataContext";
 import SubjectCell from "./SubjectCell";
 
 interface ScheduleGridProps {
@@ -16,6 +17,7 @@ interface ScheduleGridProps {
 const GRID = "grid grid-cols-[112px_repeat(6,minmax(112px,1fr))]";
 
 export default function ScheduleGrid({ slots, highlight, classKey }: ScheduleGridProps) {
+  const { data } = useAppData();
   return (
     <div className="overflow-x-auto scrollbar-thin rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="min-w-[840px]">
@@ -86,7 +88,7 @@ export default function ScheduleGrid({ slots, highlight, classKey }: ScheduleGri
                       highlight={highlight}
                       teacher={
                         slot.cells[day]
-                          ? getTeachersForClassSubject(classKey, slot.cells[day] as SubjectKey)
+                          ? getTeachersForClassSubject(classKey, slot.cells[day] as SubjectKey, data.teachers)
                               .map((t) => t.name)
                               .join(", ")
                           : undefined

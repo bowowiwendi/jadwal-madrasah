@@ -12,13 +12,12 @@ import {
 } from "lucide-react";
 
 import { SUBJECTS, DAYS, type SubjectKey } from "@/lib/subjects";
-import { CLASS_ORDER, SCHEDULE } from "@/lib/data";
 import {
   resolveSubjects,
-  TEACHERS,
   teacherInitials,
   type Teacher,
 } from "@/lib/teachers";
+import { useAppData } from "./AppDataContext";
 
 const GRADIENTS = [
   "from-indigo-500 to-purple-500",
@@ -119,15 +118,18 @@ function TeacherCard({
 }
 
 function TeacherSchedule({ teacher }: { teacher: Teacher }) {
+  const { data } = useAppData();
+  const schedule = data.schedule;
+  const classOrder = Object.keys(schedule);
   const allSubs = new Set(resolveSubjects(teacher));
   const teacherClassKeys = new Set(
     teacher.classes.flatMap((c) => {
       const key = `KELAS ${c}`;
-      if (key in SCHEDULE) return [key];
-      return CLASS_ORDER.filter((k) => k.replace("KELAS ", "").startsWith(c));
+      if (key in schedule) return [key];
+      return classOrder.filter((k) => k.replace("KELAS ", "").startsWith(c));
     })
   );
-  const times = SCHEDULE["KELAS 3"]
+  const times = (schedule[classOrder[0]] ?? [])
     .filter((s) => !s.isBreak)
     .map((s) => s.time);
 
@@ -144,9 +146,9 @@ function TeacherSchedule({ teacher }: { teacher: Teacher }) {
     time,
     days: DAYS.map((day) => {
       const found: { cls: string; subj: SubjectKey }[] = [];
-      for (const cls of CLASS_ORDER) {
+      for (const cls of classOrder) {
         if (!teacherClassKeys.has(cls)) continue;
-        const slot = SCHEDULE[cls].find((s) => s.time === time);
+        const slot = schedule[cls]?.find((s) => s.time === time);
         if (!slot || slot.isBreak) continue;
         const subj = slot.cells[day];
         const short = cls.replace("KELAS ", "");
@@ -217,13 +219,14 @@ function TeacherSchedule({ teacher }: { teacher: Teacher }) {
 }
 
 export default function TeacherList() {
+  const { data } = useAppData();
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Teacher | null>(null);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return TEACHERS;
-    return TEACHERS.filter((t) => {
+    if (!q) return data.teachers;
+    return data.teachers.filter((t) => {
       const inName = t.name.toLowerCase().includes(q);
       const inClass = t.classes.some((c) => c.toLowerCase().includes(q));
       const inSubject = resolveSubjects(t).some((s) =>
@@ -231,7 +234,7 @@ export default function TeacherList() {
       );
       return inName || inClass || inSubject;
     });
-  }, [query]);
+  }, [query, data.teachers]);
 
   return (
     <div>
@@ -242,7 +245,7 @@ export default function TeacherList() {
             Daftar Guru &amp; Pengampu
           </h2>
           <p className="text-sm text-slate-500">
-            {TEACHERS.length} tenaga pengajar · Tahun Ajaran 2026/2027
+            {data.teachers.length} tenaga pengajar · {data.info.year}
           </p>
         </div>
         <div className="relative w-full sm:w-72">

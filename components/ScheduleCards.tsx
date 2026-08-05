@@ -5,6 +5,7 @@ import { CalendarDays, Clock, Coffee } from "lucide-react";
 import { DAYS, type SubjectKey } from "@/lib/subjects";
 import type { Slot } from "@/lib/data";
 import { getTeachersForClassSubject } from "@/lib/teachers";
+import { useAppData } from "./AppDataContext";
 import SubjectCell from "./SubjectCell";
 
 interface ScheduleCardsProps {
@@ -18,6 +19,7 @@ export default function ScheduleCards({
   highlight,
   classKey,
 }: ScheduleCardsProps) {
+  const { data } = useAppData();
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       {DAYS.map((day, di) => (
@@ -70,7 +72,7 @@ export default function ScheduleCards({
                       highlight={highlight}
                       teacher={
                         subject
-                          ? getTeachersForClassSubject(classKey, subject as SubjectKey)
+                          ? getTeachersForClassSubject(classKey, subject as SubjectKey, data.teachers)
                               .map((t) => t.name)
                               .join(", ")
                           : undefined

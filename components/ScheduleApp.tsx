@@ -4,9 +4,8 @@ import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { BookOpen, GraduationCap, School, Settings2, Sparkles } from "lucide-react";
 
-import { CLASS_ORDER, SCHEDULE } from "@/lib/data";
+import { CLASS_ORDER } from "@/lib/data";
 import type { SubjectKey } from "@/lib/subjects";
-import { TEACHERS } from "@/lib/teachers";
 
 import MainTabs, { type ViewKey } from "./MainTabs";
 import ClassTabs from "./ClassTabs";
@@ -19,14 +18,20 @@ import DashboardHariIni from "./DashboardHariIni";
 import InfoSekolah from "./InfoSekolah";
 import AdminPanel from "./AdminPanel";
 import { AppSettingsProvider } from "./SettingsContext";
+import { AppDataProvider, useAppData } from "./AppDataContext";
 
-export default function ScheduleApp() {
+function AppBody() {
+  const { data } = useAppData();
   const [view, setView] = useState<ViewKey>("dashboard");
+  const classes = Object.keys(data.schedule);
   const [activeClass, setActiveClass] = useState<string>(CLASS_ORDER[0]);
   const [highlight, setHighlight] = useState<SubjectKey | null>(null);
   const [adminOpen, setAdminOpen] = useState(false);
 
-  const slots = useMemo(() => SCHEDULE[activeClass], [activeClass]);
+  const slots = useMemo(() => {
+    const cls = classes.includes(activeClass) ? activeClass : classes[0] ?? CLASS_ORDER[0];
+    return data.schedule[cls] ?? [];
+  }, [classes, activeClass, data.schedule]);
 
   const toggleHighlight = (subject: SubjectKey) =>
     setHighlight((prev) => (prev === subject ? null : subject));
@@ -45,19 +50,19 @@ export default function ScheduleApp() {
               <div>
                 <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-indigo-200">
                   <Sparkles className="h-3.5 w-3.5" />
-                  Jadwal Pelajaran &amp; Daftar Guru
+                  {data.info.tagline}
                 </p>
                 <h1 className="mt-1 text-xl font-extrabold leading-tight sm:text-2xl">
-                  MI JAMIYATUL FALAH KEDUNGNENG
+                  {data.info.name}
                 </h1>
                 <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-300">
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 font-semibold text-white ring-1 ring-white/15">
                     <GraduationCap className="h-3.5 w-3.5" />
-                    Tahun Ajaran 2026/2027
+                    {data.info.year}
                   </span>
                   <span className="inline-flex items-center gap-1.5 text-slate-300">
                     <BookOpen className="h-3.5 w-3.5" />
-                    {CLASS_ORDER.length} Kelas · {TEACHERS.length} Guru
+                    {classes.length} Kelas · {data.teachers.length} Guru
                   </span>
                 </p>
               </div>
@@ -80,7 +85,7 @@ export default function ScheduleApp() {
             <MainTabs
               view={view}
               onChange={setView}
-              teacherCount={TEACHERS.length}
+              teacherCount={data.teachers.length}
             />
           </div>
         </div>
@@ -109,7 +114,7 @@ export default function ScheduleApp() {
             >
               <div className="mb-5">
                 <ClassTabs
-                  classes={CLASS_ORDER}
+                  classes={classes}
                   active={activeClass}
                   onChange={setActiveClass}
                 />
@@ -176,12 +181,19 @@ export default function ScheduleApp() {
       </section>
 
       <footer className="mx-auto max-w-6xl px-4 pb-10 pt-2 text-center text-xs text-slate-400 sm:px-6">
-        MI JAMIYATUL FALAH KEDUNGNENG · Tahun Ajaran 2026/2027 · Dibuat dengan
-        Next.js &amp; Tailwind CSS
+        {data.info.footer}
       </footer>
 
       <AdminPanel open={adminOpen} onClose={() => setAdminOpen(false)} />
     </main>
     </AppSettingsProvider>
+  );
+}
+
+export default function ScheduleApp() {
+  return (
+    <AppDataProvider>
+      <AppBody />
+    </AppDataProvider>
   );
 }

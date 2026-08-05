@@ -148,12 +148,13 @@ export function teacherInitials(name: string): string {
  */
 export function getTeachersForClassSubject(
   classKey: string,
-  subject: SubjectKey
+  subject: SubjectKey,
+  teachers: Teacher[] = TEACHERS
 ): Teacher[] {
   const SCHEDULE_KEY = `KELAS ${classKey}`;
   const matched: Teacher[] = [];
 
-  for (const t of TEACHERS) {
+  for (const t of teachers) {
     const teachesThisClass = t.classes.some(
       (c) =>
         c === classKey ||

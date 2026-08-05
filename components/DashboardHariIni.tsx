@@ -10,11 +10,11 @@ import {
   Sun,
 } from "lucide-react";
 
-import { CLASS_ORDER, SCHEDULE } from "@/lib/data";
 import { DAYS, SUBJECTS, type SubjectKey } from "@/lib/subjects";
 import { getIndonesianWeekday, getPasaran } from "@/lib/calendar";
 import { SURAH_DAYS, SHOLAT_DOA } from "@/lib/routine";
 import { useSettings } from "./SettingsContext";
+import { useAppData } from "./AppDataContext";
 import {
   getTodayPiket,
   getTodayUniform,
@@ -47,11 +47,13 @@ export default function DashboardHariIni() {
   const currentSurahs = surahDays[surahCurrentCtx]?.surahs ?? [];
   const activePre = settings.preReading[surahCurrentCtx % settings.preReading.length];
 
-  const piket = getTodayPiket(today);
-  const uniform = getTodayUniform(today);
-  const upacara = getTodayUpacara(today);
-  const kegiatanJumat = getTodayKegiatanJumat(today);
-  const petugasPembiasaan = getTodayPetugasPembiasaan(today);
+  const { data } = useAppData();
+
+  const piket = getTodayPiket(today, data.piket);
+  const uniform = getTodayUniform(today, data.seragam);
+  const upacara = getTodayUpacara(today, data.upacara);
+  const kegiatanJumat = getTodayKegiatanJumat(today, data.kegiatanJumat);
+  const petugasPembiasaan = getTodayPetugasPembiasaan(today, data.petugasPembiasaan);
 
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
@@ -61,15 +63,15 @@ export default function DashboardHariIni() {
   const dayKeyBesok = (DAYS as readonly string[]).includes(weekdayBesok)
     ? (weekdayBesok as (typeof DAYS)[number])
     : null;
-  const piketBesok = getTodayPiket(tomorrow);
-  const uniformBesok = getTodayUniform(tomorrow);
-  const upacaraBesok = getTodayUpacara(tomorrow);
-  const kegiatanJumatBesok = getTodayKegiatanJumat(tomorrow);
-  const petugasPembiasaanBesok = getTodayPetugasPembiasaan(tomorrow);
+  const piketBesok = getTodayPiket(tomorrow, data.piket);
+  const uniformBesok = getTodayUniform(tomorrow, data.seragam);
+  const upacaraBesok = getTodayUpacara(tomorrow, data.upacara);
+  const kegiatanJumatBesok = getTodayKegiatanJumat(tomorrow, data.kegiatanJumat);
+  const petugasPembiasaanBesok = getTodayPetugasPembiasaan(tomorrow, data.petugasPembiasaan);
   const lusa = new Date(today);
   lusa.setDate(today.getDate() + 2);
   const weekdayLusa = getIndonesianWeekday(lusa);
-  const petugasPembiasaanLusa = getTodayPetugasPembiasaan(lusa);
+  const petugasPembiasaanLusa = getTodayPetugasPembiasaan(lusa, data.petugasPembiasaan);
   const dateLabelBesok = tomorrow.toLocaleDateString("id-ID", {
     weekday: "long",
     day: "numeric",
@@ -80,7 +82,7 @@ export default function DashboardHariIni() {
   const currentSurahsBesok = surahDays[surahCurrentBesok]?.surahs ?? [];
   const activePreBesok = settings.preReading[surahCurrentBesok % settings.preReading.length];
 
-  const nextUpacara = getNextUpacara(today);
+  const nextUpacara = getNextUpacara(today, data.upacara);
 
   const dateLabel = today.toLocaleDateString("id-ID", {
     weekday: "long",
@@ -528,8 +530,8 @@ export default function DashboardHariIni() {
             <span className="font-semibold text-slate-700">{weekday}</span>.
           </p>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {CLASS_ORDER.map((kelas, idx) => {
-              const slots = SCHEDULE[kelas];
+            {Object.keys(data.schedule).map((kelas, idx) => {
+              const slots = data.schedule[kelas];
               return (
                 <motion.div
                   key={kelas}
@@ -595,8 +597,8 @@ export default function DashboardHariIni() {
           </h3>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {CLASS_ORDER.map((kelas, idx) => {
-              const slots = SCHEDULE[kelas];
+            {Object.keys(data.schedule).map((kelas, idx) => {
+              const slots = data.schedule[kelas];
               return (
                 <motion.div
                   key={kelas}

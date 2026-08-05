@@ -1,20 +1,99 @@
 "use client";
 
+import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   BookOpen,
-  GripVertical,
-  Plus,
-  RotateCcw,
+  CalendarDays,
+  ClipboardList,
+  Lock,
+  School,
   Settings2,
-  Trash2,
+  Users,
   X,
-  ArrowDown,
-  ArrowUp,
 } from "lucide-react";
 
-import { SURAH_DAYS } from "@/lib/routine";
-import { useSettings } from "./SettingsContext";
+import { sha256Hex } from "@/lib/adminData";
+import { useAppData } from "./AppDataContext";
+import AdminInfoSection from "./admin/AdminInfoSection";
+import AdminSekolahSection from "./admin/AdminSekolahSection";
+import AdminGuruSection from "./admin/AdminGuruSection";
+import AdminJadwalSection from "./admin/AdminJadwalSection";
+import AdminRoutineSection from "./admin/AdminRoutineSection";
+
+type TabKey = "info" | "sekolah" | "guru" | "jadwal" | "pembiasaan";
+
+const TABS: { key: TabKey; label: string; icon: typeof School }[] = [
+  { key: "info", label: "Info & Keamanan", icon: School },
+  { key: "sekolah", label: "Data Sekolah", icon: ClipboardList },
+  { key: "guru", label: "Guru", icon: Users },
+  { key: "jadwal", label: "Jadwal Pelajaran", icon: CalendarDays },
+  { key: "pembiasaan", label: "Pembiasaan", icon: BookOpen },
+];
+
+function PinGate({ onUnlock }: { onUnlock: () => void }) {
+  const { data } = useAppData();
+  const [pin, setPin] = useState("");
+  const [error, setError] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    setError(false);
+    try {
+      const hash = await sha256Hex(pin);
+      if (hash === data.pinHash) {
+        onUnlock();
+      } else {
+        setError(true);
+        setPin("");
+      }
+    } catch {
+      setError(true);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-1 flex-col items-center justify-center px-6 py-16">
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-sm">
+        <Lock className="h-6 w-6" />
+      </div>
+      <h3 className="mt-4 text-base font-bold text-slate-800">Panel Terkunci</h3>
+      <p className="mt-1 text-sm text-slate-500">
+        Masukkan PIN admin untuk membuka pengaturan.
+      </p>
+      <form onSubmit={submit} className="mt-5 w-full max-w-xs">
+        <input
+          type="password"
+          autoFocus
+          value={pin}
+          onChange={(e) => {
+            setPin(e.target.value);
+            setError(false);
+          }}
+          placeholder="PIN admin…"
+          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-center text-lg tracking-[0.4em] text-slate-700 shadow-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+        />
+        {error && (
+          <p className="mt-2 text-center text-xs font-semibold text-rose-500">
+            PIN salah. Coba lagi.
+          </p>
+        )}
+        <button
+          type="submit"
+          disabled={busy || !pin}
+          className="mt-3 w-full rounded-xl bg-indigo-600 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-50"
+        >
+          {busy ? "Memeriksa…" : "Buka Panel"}
+        </button>
+      </form>
+    </div>
+  );
+}
 
 export default function AdminPanel({
   open,
@@ -23,48 +102,24 @@ export default function AdminPanel({
   open: boolean;
   onClose: () => void;
 }) {
-  const { settings, update, surahCurrent, surahTotal } = useSettings();
-  const preReading = settings.preReading;
+  const { data } = useAppData();
+  const [tab, setTab] = useState<TabKey>("info");
+  const [unlocked, setUnlocked] = useState(false);
 
-  const surahDays = SURAH_DAYS;
-  const currentSurahs = surahDays[surahCurrent]?.surahs ?? [];
-
-  const setItem = (i: number, val: string) => {
-    const next = [...preReading];
-    next[i] = val;
-    update({ preReading: next });
-  };
-  const removeItem = (i: number) =>
-    update({ preReading: preReading.filter((_, j) => j !== i) });
-  const addItem = () => update({ preReading: [...preReading, "Item Baru"] });
-  const move = (i: number, dir: number) => {
-    const j = i + dir;
-    if (j < 0 || j >= preReading.length) return;
-    const next = [...preReading];
-    [next[i], next[j]] = [next[j], next[i]];
-    update({ preReading: next });
-  };
-
-  const goToDay = (n: number) => {
-    const clamped = Math.max(0, Math.min(surahTotal - 1, n));
-    update({
-      surahOffset: clamped,
-      surahStartDate: new Date().toISOString().slice(0, 10),
-    });
-  };
+  const locked = !!data.pinHash && !unlocked;
 
   return (
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 backdrop-blur-sm sm:items-center sm:p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
         >
           <motion.div
-            className="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-t-2xl bg-white shadow-xl sm:rounded-2xl"
+            className="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-t-2xl bg-white shadow-xl sm:rounded-2xl"
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 30, opacity: 0 }}
@@ -86,104 +141,38 @@ export default function AdminPanel({
               </button>
             </div>
 
-            <div className="space-y-6 overflow-y-auto px-5 py-5">
-              {/* Bacaan Pembuka */}
-              <section>
-                <p className="mb-1 flex items-center gap-1.5 text-sm font-bold text-slate-700">
-                  <BookOpen className="h-4 w-4 text-emerald-600" />
-                  Bacaan Pembuka (Selang-seling)
-                </p>
-                <p className="mb-3 text-xs text-slate-400">
-                  Atur urutan bacaan yang diputar setiap hari secara bergiliran.
-                </p>
-                <div className="space-y-2">
-                  {preReading.map((label, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      <GripVertical className="h-4 w-4 shrink-0 text-slate-300" />
-                      <input
-                        value={label}
-                        onChange={(e) => setItem(i, e.target.value)}
-                        className="min-w-0 flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => move(i, -1)}
-                        disabled={i === 0}
-                        className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 disabled:opacity-30"
-                        aria-label="Atas"
-                      >
-                        <ArrowUp className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => move(i, 1)}
-                        disabled={i === preReading.length - 1}
-                        className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 disabled:opacity-30"
-                        aria-label="Bawah"
-                      >
-                        <ArrowDown className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removeItem(i)}
-                        className="rounded-lg p-1.5 text-rose-500 transition hover:bg-rose-50"
-                        aria-label="Hapus"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
+            {locked ? (
+              <PinGate onUnlock={() => setUnlocked(true)} />
+            ) : (
+              <>
+                <div className="flex gap-1 overflow-x-auto border-b border-slate-100 px-4 pt-2">
+                  {TABS.map(({ key, label, icon: Icon }) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setTab(key)}
+                      className={[
+                        "inline-flex shrink-0 items-center gap-1.5 rounded-t-lg border-b-2 px-3 py-2.5 text-sm font-semibold transition",
+                        tab === key
+                          ? "border-indigo-600 text-indigo-700"
+                          : "border-transparent text-slate-500 hover:text-slate-700",
+                      ].join(" ")}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {label}
+                    </button>
                   ))}
                 </div>
-                <button
-                  type="button"
-                  onClick={addItem}
-                  className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-dashed border-slate-300 px-3 py-2 text-sm font-semibold text-slate-500 transition hover:border-indigo-400 hover:text-indigo-600"
-                >
-                  <Plus className="h-4 w-4" />
-                  Tambah Bacaan
-                </button>
-              </section>
 
-              {/* Progres Surat */}
-              <section className="border-t border-slate-100 pt-5">
-                <p className="mb-1 text-sm font-bold text-slate-700">
-                  Progres Surat (Juz &apos;Amma)
-                </p>
-                <p className="mb-3 text-xs text-slate-400">
-                  Atur posisi awal. Besok akan maju otomatis ke hari berikutnya.
-                </p>
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => goToDay(surahCurrent - 1)}
-                    disabled={surahCurrent === 0}
-                    className="rounded-lg bg-slate-100 px-3 py-2 text-lg font-bold text-slate-600 transition hover:bg-slate-200 disabled:opacity-40"
-                  >
-                    −
-                  </button>
-                  <div className="min-w-0 flex-1 text-center">
-                    <p className="text-2xl font-extrabold text-slate-800">
-                      {surahCurrent + 1}
-                      <span className="text-sm font-medium text-slate-400">
-                        {" "}
-                        / {surahTotal}
-                      </span>
-                    </p>
-                    <p className="line-clamp-1 text-xs text-slate-500">
-                      {currentSurahs.map((s) => s.name).join(", ")}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => goToDay(surahCurrent + 1)}
-                    disabled={surahCurrent >= surahTotal - 1}
-                    className="rounded-lg bg-slate-100 px-3 py-2 text-lg font-bold text-slate-600 transition hover:bg-slate-200 disabled:opacity-40"
-                  >
-                    +
-                  </button>
+                <div className="overflow-y-auto px-5 py-5">
+                  {tab === "info" && <AdminInfoSection />}
+                  {tab === "sekolah" && <AdminSekolahSection />}
+                  {tab === "guru" && <AdminGuruSection />}
+                  {tab === "jadwal" && <AdminJadwalSection />}
+                  {tab === "pembiasaan" && <AdminRoutineSection />}
                 </div>
-              </section>
-            </div>
+              </>
+            )}
           </motion.div>
         </motion.div>
       )}

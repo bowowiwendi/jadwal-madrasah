@@ -3,13 +3,7 @@
 import { motion } from "framer-motion";
 import { CalendarRange, Shirt, Users, Flag, Dumbbell } from "lucide-react";
 
-import {
-  JADWAL_PIKET,
-  JADWAL_SERAGAM,
-  JADWAL_UPACARA,
-  KEGIATAN_JUMAT,
-  PETUGAS_PEMBIASAAN,
-} from "@/lib/school";
+import { useAppData } from "./AppDataContext";
 
 function Section({
   icon: Icon,
@@ -70,6 +64,7 @@ function Table({
 }
 
 export default function InfoSekolah() {
+  const { data } = useAppData();
   return (
     <div className="space-y-5">
       <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-gradient-to-br from-indigo-50 to-slate-50 p-5">
@@ -88,7 +83,7 @@ export default function InfoSekolah() {
         <Section icon={Users} title="Jadwal Piket">
           <Table
             headers={["Hari", "Kelas", "Sholat Duha & Duhur", "Salam Sapa"]}
-            rows={JADWAL_PIKET.map((p) => [
+            rows={data.piket.map((p) => [
               p.Hari,
               p.Kelas,
               p["Sholat Duha dan Duhur"],
@@ -100,14 +95,14 @@ export default function InfoSekolah() {
         <Section icon={Shirt} title="Jadwal Seragam">
           <Table
             headers={["Hari / Waktu", "Pakaian Seragam"]}
-            rows={JADWAL_SERAGAM.map((s) => [s["Hari / Waktu"], s["Pakaian Seragam"]])}
+            rows={data.seragam.map((s) => [s["Hari / Waktu"], s["Pakaian Seragam"]])}
           />
         </Section>
 
         <Section icon={Dumbbell} title="Kegiatan Jum'at">
           <Table
             headers={["Jadwal", "Kegiatan"]}
-            rows={KEGIATAN_JUMAT.map((k) => [
+            rows={data.kegiatanJumat.map((k) => [
               k["Jadwal Olahraga / Kegiatan Jumat"],
               k.Kegiatan,
             ])}
@@ -117,7 +112,7 @@ export default function InfoSekolah() {
         <Section icon={Users} title="Petugas Pembiasaan Pagi">
           <Table
             headers={["Hari", "Kelas Petugas"]}
-            rows={Object.entries(PETUGAS_PEMBIASAAN).map(([hari, kelas]) => [
+            rows={Object.entries(data.petugasPembiasaan).map(([hari, kelas]) => [
               hari,
               `Kelas ${kelas}`,
             ])}
@@ -127,7 +122,7 @@ export default function InfoSekolah() {
         <Section icon={Flag} title="Jadwal Upacara">
           <Table
             headers={["No", "Hari, Tanggal", "Petugas", "Pembina"]}
-            rows={JADWAL_UPACARA.tabel_petugas.map((u) => [
+            rows={data.upacara.map((u) => [
               String(u.No),
               u["Hari, Tanggal"],
               u.Petugas,
@@ -135,7 +130,7 @@ export default function InfoSekolah() {
             ])}
           />
           <div className="mt-4 space-y-1.5 border-t border-slate-100 pt-3">
-            {JADWAL_UPACARA.catatan.map((c, i) => (
+            {data.upacaraCatatan.map((c, i) => (
               <p key={i} className="flex gap-2 text-xs text-slate-500">
                 <span className="text-slate-300">•</span>
                 {c}

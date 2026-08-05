@@ -98,9 +98,34 @@ export const PETUGAS_PEMBIASAAN: Record<string, string> = {
   Sabtu: "4B",
 };
 
-const RABU = ["Batik Ijo", "Batik Biru", "Batik Coklat", "Batik Ungu", "Batik Oranye / Kecoklatan"];
-const JUMAT_KAOS = ["Kaos Pink", "Kaos KKG", "Kaos Kemah", "Kaos Biru Piknik"];
-const KLIWON_GAMIS = ["Gamis Ungu", "Gamis Hitam", "Gamis Kuning", "Gamis Hijau", "Gamis Putih"];
+const RABU_DEFAULT = ["Batik Ijo", "Batik Biru", "Batik Coklat", "Batik Ungu", "Batik Oranye / Kecoklatan"];
+const JUMAT_KAOS_DEFAULT = ["Kaos Pink", "Kaos KKG", "Kaos Kemah", "Kaos Biru Piknik"];
+const KLIWON_GAMIS_DEFAULT = ["Gamis Ungu", "Gamis Hitam", "Gamis Kuning", "Gamis Hijau", "Gamis Putih"];
+
+/** Menurunkan daftar giliran dari tabel seragam (baris "Rabu 1..5", "Jumat 1..4", "Kliwon 1..5"). */
+function deriveList(seragam: Seragam[], pattern: RegExp): string[] {
+  return seragam
+    .map((s) => s["Hari / Waktu"].match(pattern))
+    .map((m, i) => ({ m, i }))
+    .filter((x): x is { m: RegExpMatchArray; i: number } => !!x.m)
+    .sort((a, b) => Number(a.m[1]) - Number(b.m[1]))
+    .map((x) => seragam[x.i]["Pakaian Seragam"]);
+}
+
+export function getRabuList(seragam: Seragam[] = JADWAL_SERAGAM): string[] {
+  const list = deriveList(seragam, /^Rabu (\d+)$/);
+  return list.length ? list : RABU_DEFAULT;
+}
+
+export function getJumatKaosList(seragam: Seragam[] = JADWAL_SERAGAM): string[] {
+  const list = deriveList(seragam, /^Jumat (\d+)$/);
+  return list.length ? list : JUMAT_KAOS_DEFAULT;
+}
+
+export function getKliwonGamisList(seragam: Seragam[] = JADWAL_SERAGAM): string[] {
+  const list = deriveList(seragam, /Kliwon (\d+)$/);
+  return list.length ? list : KLIWON_GAMIS_DEFAULT;
+}
 
 /** Rotasi batik Rabu berjalan terus tanpa reset tiap bulan.
  *  Rabu 05-08-2026 = Rabu ke-4 = Batik Ungu (indeks 3). Setiap Rabu
@@ -114,7 +139,8 @@ function rabuStep(date: Date): number {
   );
   const weeks = Math.floor(diffDays / 7);
   return (
-    (((RABU_ANCHOR_INDEX + weeks) % RABU.length) + RABU.length) % RABU.length
+    (((RABU_ANCHOR_INDEX + weeks) % RABU_DEFAULT.length) + RABU_DEFAULT.length) %
+    RABU_DEFAULT.length
   );
 }
 
@@ -130,9 +156,9 @@ function jumatKaosStep(date: Date): number {
   );
   const weeks = Math.floor(diffDays / 7);
   return (
-    (((JUMAT_KAOS_ANCHOR_INDEX + weeks) % JUMAT_KAOS.length) +
-      JUMAT_KAOS.length) %
-    JUMAT_KAOS.length
+    (((JUMAT_KAOS_ANCHOR_INDEX + weeks) % JUMAT_KAOS_DEFAULT.length) +
+      JUMAT_KAOS_DEFAULT.length) %
+    JUMAT_KAOS_DEFAULT.length
   );
 }
 
@@ -149,7 +175,10 @@ function occurrenceInMonth(date: Date, matcher: (d: Date) => boolean): number {
 const pick = <T,>(arr: T[], n: number): T => arr[((n - 1) % arr.length + arr.length) % arr.length];
 
 /** Seragam yang dikenakan hari ini (memperhitungkan minggu ke-, pasaran, dan tgl 17/22). */
-export function getTodayUniform(date: Date = new Date()): string {
+export function getTodayUniform(
+  date: Date = new Date(),
+  seragam: Seragam[] = JADWAL_SERAGAM
+): string {
   const tgl = date.getDate();
   if (tgl === 17) return "Korpri";
   if (tgl === 2) return "Kebaya";
@@ -159,30 +188,39 @@ export function getTodayUniform(date: Date = new Date()): string {
   if (wd === "Kamis") return "Batik Bebas";
   if (wd === "Sabtu") return "PGRI";
   if (wd === "Rabu") {
-    return RABU[rabuStep(date)];
+    const rabu = getRabuList(seragam);
+    return rabu[rabuStep(date) % rabu.length];
   }
   if (wd === "Jumat") {
     const pasaran = getPasaran(date);
     if (pasaran === "Kliwon") {
+      const gamis = getKliwonGamisList(seragam);
       const n = occurrenceInMonth(date, (d) => getPasaran(d) === "Kliwon");
-      return pick(KLIWON_GAMIS, n);
+      return pick(gamis, n);
     }
-    return JUMAT_KAOS[jumatKaosStep(date)];
+    const kaos = getJumatKaosList(seragam);
+    return kaos[jumatKaosStep(date) % kaos.length];
   }
   return "—";
 }
 
-export function getTodayPiket(date: Date = new Date()): Piket | null {
+export function getTodayPiket(
+  date: Date = new Date(),
+  piket: Piket[] = JADWAL_PIKET
+): Piket | null {
   const wd = getIndonesianWeekday(date);
-  return JADWAL_PIKET.find((p) => p.Hari === wd) ?? null;
+  return piket.find((p) => p.Hari === wd) ?? null;
 }
 
-export function getTodayUpacara(date: Date = new Date()): Upacara | null {
+export function getTodayUpacara(
+  date: Date = new Date(),
+  upacara: Upacara[] = JADWAL_UPACARA.tabel_petugas
+): Upacara | null {
   const d = date.getDate();
   const m = date.getMonth() + 1;
   const y = date.getFullYear();
   return (
-    JADWAL_UPACARA.tabel_petugas.find((u) => {
+    upacara.find((u) => {
       const match = u["Hari, Tanggal"].match(/(\d{1,2})\s+(\d{2})\s+(\d{4})/);
       if (!match) return false;
       return Number(match[1]) === d && Number(match[2]) === m && Number(match[3]) === y;
@@ -190,12 +228,15 @@ export function getTodayUpacara(date: Date = new Date()): Upacara | null {
   );
 }
 
-export function getNextUpacara(date: Date = new Date()): Upacara | null {
+export function getNextUpacara(
+  date: Date = new Date(),
+  upacara: Upacara[] = JADWAL_UPACARA.tabel_petugas
+): Upacara | null {
   const now = new Date(date);
   now.setHours(0, 0, 0, 0);
   let next: Upacara | null = null;
   let nextDate: Date | null = null;
-  for (const u of JADWAL_UPACARA.tabel_petugas) {
+  for (const u of upacara) {
     const m = u["Hari, Tanggal"].match(/(\d{1,2})\s+(\d{2})\s+(\d{4})/);
     if (!m) continue;
     const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
@@ -208,16 +249,32 @@ export function getNextUpacara(date: Date = new Date()): Upacara | null {
   return next;
 }
 
-export function getTodayKegiatanJumat(date: Date = new Date()): string | null {
+export function getTodayKegiatanJumat(
+  date: Date = new Date(),
+  kegiatan: KegiatanJumat[] = KEGIATAN_JUMAT
+): string | null {
   const wd = getIndonesianWeekday(date);
   if (wd !== "Jumat") return null;
   const pasaran = getPasaran(date);
-  if (pasaran === "Kliwon") return "Yasin dan Tahlil";
+  if (pasaran === "Kliwon") {
+    return (
+      kegiatan.find((k) => k["Jadwal Olahraga / Kegiatan Jumat"] === "Jumat Kliwon")
+        ?.Kegiatan ?? "Yasin dan Tahlil"
+    );
+  }
+  const list = kegiatan
+    .map((k, i) => ({ m: k["Jadwal Olahraga / Kegiatan Jumat"].match(/^Jumat (\d+)$/), i }))
+    .filter((x): x is { m: RegExpMatchArray; i: number } => !!x.m)
+    .sort((a, b) => Number(a.m[1]) - Number(b.m[1]))
+    .map((x) => kegiatan[x.i].Kegiatan);
   const n = occurrenceInMonth(date, (d) => getIndonesianWeekday(d) === "Jumat");
-  return pick(["Jalan Sehat", "Senam", "Bersih-bersih"], n);
+  return pick(list.length ? list : ["Jalan Sehat", "Senam", "Bersih-bersih"], n);
 }
 
-export function getTodayPetugasPembiasaan(date: Date = new Date()): string | null {
+export function getTodayPetugasPembiasaan(
+  date: Date = new Date(),
+  petugas: Record<string, string> = PETUGAS_PEMBIASAAN
+): string | null {
   const wd = getIndonesianWeekday(date);
-  return PETUGAS_PEMBIASAAN[wd] ?? null;
+  return petugas[wd] ?? null;
 }
